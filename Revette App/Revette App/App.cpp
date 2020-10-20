@@ -1,10 +1,16 @@
-#include "App.h"
 #include <iostream>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+#include "App.h"
+
 
 
 App::App()
 {
     mainWindow = nullptr;
+    camera = Camera();
 }
 
 
@@ -31,7 +37,7 @@ bool App::init()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     // Create a window object
-    mainWindow = glfwCreateWindow(800, 600, "Revette", NULL, NULL);
+    mainWindow = glfwCreateWindow(1500, 1000, "Revette", NULL, NULL);
     if (mainWindow == NULL) {
         std::cout << "Error creating window" << std::endl;
         glfwTerminate();
@@ -43,10 +49,12 @@ bool App::init()
         std::cout << "Failed to init glad" << std::endl;
         return false;
     }
-    glViewport(0, 0, 800, 600);
+    glViewport(0, 0, 1500, 1000);
 
     // Load shader program
     shader = std::make_unique<Shader>("basic.vs", "basic.fs");
+
+    camera.setPosition(0.0f, 1.0f);
 
     if (!tilemap.loadChunks()) return false;
 
@@ -57,9 +65,30 @@ bool App::init()
 
 void App::processInput()
 {
+    // Check for exit
     if (glfwGetKey(mainWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     {
         glfwSetWindowShouldClose(mainWindow, true);
+    }
+    
+    float cameraSpeed = 0.5f;
+
+    //Movement
+    if (glfwGetKey(mainWindow, GLFW_KEY_W) == GLFW_PRESS)
+    {
+        camera.translate(0.0f, -cameraSpeed);
+    }
+    if (glfwGetKey(mainWindow, GLFW_KEY_S) == GLFW_PRESS)
+    {
+        camera.translate(0.0f, cameraSpeed);
+    }
+    if (glfwGetKey(mainWindow, GLFW_KEY_A) == GLFW_PRESS)
+    {
+        camera.translate(-cameraSpeed, 0.0f);
+    }
+    if (glfwGetKey(mainWindow, GLFW_KEY_D) == GLFW_PRESS)
+    {
+        camera.translate(cameraSpeed, 0.0f);
     }
 }
 
@@ -71,9 +100,16 @@ void App::render()
     glClearColor(0.0f, 0.08f, 0.14f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
+    //Calculate the projection matrix
+    glm::mat4 projection = glm::ortho(0.0f, 93.75f, 62.5f, 0.0f, -1.0f, 1.0f);
+
+    //Calculate vertex offset due to camera position
+    glm::vec2 cameraPosition = camera.getPosition();
+    glm::vec2 cameraOffset = cameraPosition * -1.0f;
+
     // Render the frame
     // Draw the tilemap
-    if (!tilemap.drawChunks(shader))
+    if (!tilemap.drawChunks(shader, projection, cameraOffset))
     {
         std::cout << "Error drawing tilemap" << std::endl;
     }

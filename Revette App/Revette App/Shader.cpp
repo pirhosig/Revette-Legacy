@@ -58,14 +58,14 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 		std::cout << "Failed to compile fragment shader.\n" << infoLog << std::endl;
 	}
 
-	program_id = glCreateProgram();
-	glAttachShader(program_id, vertexShader);
-	glAttachShader(program_id, fragmentShader);
-	glLinkProgram(program_id);
-	glGetProgramiv(program_id, GL_LINK_STATUS, &success);
+	programID = glCreateProgram();
+	glAttachShader(programID, vertexShader);
+	glAttachShader(programID, fragmentShader);
+	glLinkProgram(programID);
+	glGetProgramiv(programID, GL_LINK_STATUS, &success);
 	if (!success)
 	{
-		glGetProgramInfoLog(program_id, 512, NULL, infoLog);
+		glGetProgramInfoLog(programID, 512, NULL, infoLog);
 		std::cout << "Failed to link shader program.\n" << infoLog << std::endl;
 	}
 	glDeleteShader(vertexShader);
@@ -76,12 +76,19 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 
 void Shader::useShader()
 {
-	glUseProgram(program_id);
+	glUseProgram(programID);
 }
 
 
 
 void Shader::setVec2(const std::string& name, float x, float y) const
 {
-	glUniform2f(glGetUniformLocation(program_id, name.c_str()), x, y);
+	glUniform2f(glGetUniformLocation(programID, name.c_str()), x, y);
+}
+
+
+
+void Shader::setMat4(const std::string& name, const glm::mat4& mat) const
+{
+	glUniformMatrix4fv(glGetUniformLocation(programID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }

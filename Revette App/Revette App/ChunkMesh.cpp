@@ -1,3 +1,5 @@
+#include <glm/glm.hpp>
+
 #include "ChunkMesh.h"
 
 
@@ -41,9 +43,10 @@ bool ChunkMesh::createMesh(const std::unique_ptr<Tile[]>& tiles)
 
 
 
-bool ChunkMesh::draw_mesh(std::unique_ptr<Shader>& shader)
+bool ChunkMesh::draw_mesh(std::unique_ptr<Shader>& shader, const glm::mat4& projection, const glm::vec2& cameraOffset, float chunkXPos, float chunkYPos)
 {
-	bool success = draw(shader);
+	const glm::vec2 chunkOffset(chunkXPos, chunkYPos);
+	bool success = draw(shader, projection, cameraOffset, chunkOffset);
 	return success;
 }
 

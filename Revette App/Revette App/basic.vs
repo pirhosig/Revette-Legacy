@@ -6,13 +6,12 @@ layout (location = 2) in vec2 aTexCoord;
 out uint TextureIndex;
 out vec2 TexCoord;
 
-uniform vec2 vertexOffset;
+uniform mat4 vertexTransformationMatrix;
 
 void main()
 {
-    vec2 actualPosition = aPos + vertexOffset;
-    vec2 finalPosition = vec2(actualPosition.x / 10.0f, actualPosition.y / 10.0f);
-    gl_Position = vec4(finalPosition, 0.0f, 1.0f);
+    vec4 actualPosition = vec4(aPos, 0.0f, 1.0f);
+    gl_Position = vertexTransformationMatrix * actualPosition;
     TextureIndex = aTextureIndex;
     TexCoord = aTexCoord;
 }

@@ -10,8 +10,9 @@ public:
 	void useShader();
 
 	void setVec2(const std::string& name, float x, float y) const;
+	void setMat4(const std::string& name, const glm::mat4& mat) const;
 
-	GLuint program_id;
+	GLuint programID;
 private:
 };
 

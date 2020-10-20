@@ -1,3 +1,5 @@
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "Mesh.h"
 
 // Adds a series of vertices and indices
@@ -28,7 +30,7 @@ void Mesh::clearMesh()
 
 
 
-bool Mesh::draw(std::unique_ptr<Shader>& shader)
+bool Mesh::draw(std::unique_ptr<Shader>& shader, const glm::mat4& projection, const glm::vec2& cameraOffset, const glm::vec2& chunkOffset)
 {
 	if (!meshExists) return true;
 	if (!isBuffered)
@@ -46,6 +48,17 @@ bool Mesh::draw(std::unique_ptr<Shader>& shader)
 	}
 	// Set the shader to be used
 	shader.get()->useShader();
+
+	//Calculate the transformation matrix
+	glm::mat4 model = glm::mat4(1.0f);
+	//Translate vertices to chunk position
+	model = glm::translate(model, glm::vec3(chunkOffset, 0.0f));
+	//Translate vertices relative to the camera
+	model = glm::translate(model, glm::vec3(cameraOffset, 0.0f));
+	const glm::mat4 vertexTranformationMatrix = projection * model;
+
+	shader.get()->setMat4("vertexTransformationMatrix", vertexTranformationMatrix);
+
 	// Load Vertex Array Object, which automatically loads configuration of buffers
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, triangleCount * 3, GL_UNSIGNED_SHORT, 0);

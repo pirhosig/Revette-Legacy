@@ -17,7 +17,7 @@ public:
 	bool setTile(unsigned tileX, unsigned tileY, Tile tile);
 
 	bool generateMesh();
-	bool draw(std::unique_ptr<Shader>& shader);
+	bool draw(std::unique_ptr<Shader>& shader, const glm::mat4& projection, const glm::vec2& cameraOffset);
 
 	unsigned chunkX;
 	unsigned chunkY;

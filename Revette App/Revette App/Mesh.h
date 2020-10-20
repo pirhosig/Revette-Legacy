@@ -1,7 +1,9 @@
 #pragma once
-#include <glad/glad.h>
 #include <vector>
 #include <memory>
+
+#include <glad/glad.h>
+#include <glm/glm.hpp>
 
 #include "Vertex.h"
 #include "Shader.h"
@@ -11,7 +13,7 @@ class Mesh
 public:
 	void addVertices(Vertex* vertexData, unsigned vertexCount, unsigned short* indexData, unsigned indexCount);
 	void clearMesh();
-	bool draw(std::unique_ptr<Shader>& shader);
+	bool draw(std::unique_ptr<Shader>& shader, const glm::mat4& projection, const glm::vec2& cameraOffset, const glm::vec2& chunkOffset);
 	bool setupBuffers();
 	bool bufferData();
 	bool isBuffered {false};

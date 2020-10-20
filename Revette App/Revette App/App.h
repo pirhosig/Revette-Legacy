@@ -1,11 +1,12 @@
 #pragma once
+#include <memory>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <memory>
 
 #include "Shader.h"
 #include "TileMap.h"
+#include "Camera.h"
 
 class App
 {
@@ -23,5 +24,6 @@ private:
 	std::unique_ptr<Shader> shader;
 
 	TileMap tilemap;
+	Camera camera;
 };
 

@@ -39,7 +39,7 @@ bool TileMap::loadChunks()
 
 
 
-bool TileMap::drawChunks(std::unique_ptr<Shader>& shader)
+bool TileMap::drawChunks(std::unique_ptr<Shader>& shader, const glm::mat4& projection, const glm::vec2& cameraOffset)
 {
 	bool success = true;
 	for (unsigned i = 0; i < TILEMAP_SIZE; ++i)
@@ -47,7 +47,7 @@ bool TileMap::drawChunks(std::unique_ptr<Shader>& shader)
 		for (unsigned j = 0; j < TILEMAP_SIZE; ++j)
 		{
 			std::unique_ptr<Chunk>& chunk = getChunk(i, j);
-			if (!chunk->draw(shader)) success = false;
+			if (!chunk->draw(shader, projection, cameraOffset)) success = false;
 		}
 	}
 	return success;

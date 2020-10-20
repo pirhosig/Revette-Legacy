@@ -49,16 +49,14 @@ bool Chunk::setTile(unsigned tileX, unsigned tileY, Tile tile)
 
 
 
-bool Chunk::draw(std::unique_ptr<Shader>& shader)
+bool Chunk::draw(std::unique_ptr<Shader>& shader, const glm::mat4& projection, const glm::vec2& cameraOffset)
 {
 	if (dataHasChanged)
 	{
 		if (!generateMesh()) return false;
 	}
 
-	shader.get()->setVec2("vertexOffset", static_cast<float>(chunkX * 32), static_cast<float>(chunkY * 32));
-
-	bool success = tileMesh.get()->draw(shader);
+	bool success = tileMesh.get()->draw_mesh(shader, projection, cameraOffset, static_cast<float>(chunkX * 32), static_cast<float>(chunkY * 32));
 
 	return success;
 }
