@@ -2,13 +2,12 @@
 
 TileMap::TileMap()
 {
-
 	for (unsigned i = 0; i < TILEMAP_SIZE; ++i)
 	{
 		for (unsigned j = 0; j < TILEMAP_SIZE; ++j)
 		{
 			unsigned chunk_key = i + (j << KEY_SHIFT);
-			chunks.emplace( std::make_pair(chunk_key, std::make_unique<Chunk>(i, j)) );
+			chunks.emplace( std::make_pair(chunk_key, std::make_unique<Chunk>(i, j, terrainGenerator)) );
 		}
 	}
 }

@@ -4,7 +4,10 @@ out vec4 FragColor;
 in uint TextureIndex;
 in vec2 TexCoord;
 
+uniform sampler2D tileAtlas;
+
 void main()
 {
-    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+    vec4 textureColour = texture(tileAtlas, TexCoord);
+    FragColor = textureColour;
 }

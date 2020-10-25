@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 
 #include "Chunk.h"
+#include "WorldGenerator.h"
 
 constexpr unsigned TILEMAP_SIZE = 4;
 constexpr unsigned KEY_SHIFT = 4;
@@ -22,6 +23,7 @@ public:
 	bool loadChunks();
 	bool drawChunks(std::unique_ptr<Shader>& shader, const glm::mat4& projection, const glm::vec2& cameraOffset);
 
+	std::shared_ptr<WorldGenerator> terrainGenerator = std::make_shared<WorldGenerator>();
 private:
 	std::unordered_map<unsigned, std::unique_ptr<Chunk>> chunks;
 };

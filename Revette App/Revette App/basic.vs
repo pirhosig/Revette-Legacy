@@ -13,5 +13,5 @@ void main()
     vec4 actualPosition = vec4(aPos, 0.0f, 1.0f);
     gl_Position = vertexTransformationMatrix * actualPosition;
     TextureIndex = aTextureIndex;
-    TexCoord = aTexCoord;
+    TexCoord = aTexCoord / 128.0f;
 }

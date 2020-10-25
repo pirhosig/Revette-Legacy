@@ -10,7 +10,7 @@ public:
 
 	void translate(const float x, const float y);
 
-	float positionX;
-	float positionY;
+	float positionX {0.0f};
+	float positionY {0.0f};
 };
 

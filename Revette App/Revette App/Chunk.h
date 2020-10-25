@@ -1,8 +1,11 @@
 #pragma once
 #include <memory>
-#include "Shader.h"
+
 #include "ChunkMesh.h"
+#include "Shader.h"
 #include "Tile.h"
+#include "WorldGenerator.h"
+
 
 
 constexpr int CHUNK_SIZE { 32 };
@@ -10,7 +13,7 @@ constexpr int CHUNK_SIZE { 32 };
 class Chunk
 {
 public:
-	Chunk(unsigned x, unsigned y);
+	Chunk(unsigned x, unsigned y, std::shared_ptr<WorldGenerator>& generator);
 
 	bool generateChunk();
 	Tile getTile(unsigned tileX, unsigned tileY);
@@ -26,5 +29,7 @@ public:
 	std::unique_ptr<ChunkMesh> tileMesh;
 private:
 	bool dataHasChanged = false;
+
+	std::shared_ptr<WorldGenerator> terrainGenerator;
 };
 

@@ -4,9 +4,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "Shader.h"
-#include "TileMap.h"
 #include "Camera.h"
+#include "Shader.h"
+#include "Texture.h"
+#include "TileMap.h"
 
 class App
 {
@@ -23,6 +24,7 @@ private:
 	GLFWwindow* mainWindow;
 	std::unique_ptr<Shader> shader;
 
+	Texture textureAtlas;
 	TileMap tilemap;
 	Camera camera;
 };

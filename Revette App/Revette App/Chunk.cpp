@@ -1,13 +1,14 @@
 #include "Chunk.h"
 
 
-
-Chunk::Chunk(unsigned x, unsigned y)
+Chunk::Chunk(unsigned x, unsigned y, std::shared_ptr<WorldGenerator>& generator)
 {
 	chunkX = x;
 	chunkY = y;
 	tileData = std::make_unique<Tile[]>(CHUNK_SIZE * CHUNK_SIZE);
 	tileMesh = std::make_unique<ChunkMesh>();
+
+	terrainGenerator = generator;
 }
 
 
@@ -15,9 +16,30 @@ Chunk::Chunk(unsigned x, unsigned y)
 // Generates the chunk using the chunk generation algorithm
 bool Chunk::generateChunk()
 {
-	tileData[0] = {1};
-	tileData[33] = {1};
-	tileData[64] = {1};
+	for (unsigned x = 0; x < CHUNK_SIZE; ++x)
+	{
+		for (unsigned y = 0; y < CHUNK_SIZE; ++y)
+		{
+			unsigned globalX = x + chunkX * 32;
+			unsigned globalY = y + chunkY * 32;
+
+			unsigned tileLocation = x + (y << 5);
+
+			unsigned heightOffset = terrainGenerator->getNoiseHeight(static_cast<float>(globalX));
+
+			if (globalY > (16 - heightOffset))
+			{
+				tileData[tileLocation] = { 1, 0 };
+			}
+			else
+			{
+				if (globalY == (16 - heightOffset))
+				{
+					tileData[tileLocation] = { 2, 0 };
+				}
+			}
+		}
+	}
 	dataHasChanged = true;
 	return true;
 }

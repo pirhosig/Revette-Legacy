@@ -54,6 +54,13 @@ bool App::init()
     // Load shader program
     shader = std::make_unique<Shader>("basic.vs", "basic.fs");
 
+    // Load texture atlas
+    if (!textureAtlas.loadTexture("texture_atlas.png"))
+    {
+        std::cout << "Failed to load texture atlas" << std::endl;
+        return false;
+    }
+
     camera.setPosition(0.0f, 1.0f);
 
     if (!tilemap.loadChunks()) return false;
@@ -71,7 +78,7 @@ void App::processInput()
         glfwSetWindowShouldClose(mainWindow, true);
     }
     
-    float cameraSpeed = 0.5f;
+    float cameraSpeed = 1.5f;
 
     //Movement
     if (glfwGetKey(mainWindow, GLFW_KEY_W) == GLFW_PRESS)
@@ -100,12 +107,16 @@ void App::render()
     glClearColor(0.0f, 0.08f, 0.14f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
+    constexpr float zoomFactor = 30.0f;
+
     //Calculate the projection matrix
-    glm::mat4 projection = glm::ortho(0.0f, 93.75f, 62.5f, 0.0f, -1.0f, 1.0f);
+    glm::mat4 projection = glm::ortho(0.0f, 1500.0f / zoomFactor, 1000.0f / zoomFactor, 0.0f, -1.0f, 1.0f);
 
     //Calculate vertex offset due to camera position
     glm::vec2 cameraPosition = camera.getPosition();
     glm::vec2 cameraOffset = cameraPosition * -1.0f;
+
+    textureAtlas.bindTexture();
 
     // Render the frame
     // Draw the tilemap
