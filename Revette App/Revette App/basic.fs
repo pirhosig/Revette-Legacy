@@ -1,10 +1,9 @@
 #version 330 core
 out vec4 FragColor;
 
-in uint TextureIndex;
-in vec2 TexCoord;
+in vec3 TexCoord;
 
-uniform sampler2D tileAtlas;
+uniform sampler2DArray tileAtlas;
 
 void main()
 {

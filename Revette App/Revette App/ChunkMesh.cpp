@@ -17,16 +17,16 @@ void ChunkMesh::addSquare(unsigned short x, unsigned short y, unsigned texture)
 	unsigned short tileLowerY = 0 + y;
 	unsigned short tileUpperY = 1 + y;
 
-	unsigned char textureLowerX = 32 * texture - 32;
-	unsigned char textureUpperX = 32 * texture;
+	unsigned char textureLowerX = 0;
+	unsigned char textureUpperX = 128;
 	unsigned char textureLowerY = 0;
-	unsigned char textureUpperY = 32;
+	unsigned char textureUpperY = 128;
 
 	Vertex test_tile_vertices[4] {
-	tileLowerX, tileLowerY, 0, textureLowerX, textureLowerY,
-	tileUpperX, tileLowerY, 0, textureUpperX, textureLowerY,
-	tileUpperX, tileUpperY, 0, textureUpperX, textureUpperY,
-	tileLowerX, tileUpperY, 0, textureLowerX, textureUpperY
+	tileLowerX, tileLowerY, texture, textureLowerX, textureLowerY,
+	tileUpperX, tileLowerY, texture, textureUpperX, textureLowerY,
+	tileUpperX, tileUpperY, texture, textureUpperX, textureUpperY,
+	tileLowerX, tileUpperY, texture, textureLowerX, textureUpperY
 	};
 
 	addVertices(test_tile_vertices, 4, test_tile_indices, 6);
@@ -46,10 +46,10 @@ bool ChunkMesh::createMesh(const std::unique_ptr<Tile[]>& tiles)
 			switch (tiles[tile_location].type)
 			{
 			case 1:
-				addSquare(x, y, 1);
+				addSquare(x, y, 0);
 				break;
 			case 2:
-				addSquare(x, y, 2);
+				addSquare(x, y, 1);
 				break;
 			default:
 				break;
