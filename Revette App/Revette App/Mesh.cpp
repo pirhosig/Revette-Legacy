@@ -98,6 +98,8 @@ bool Mesh::setupBuffers()
 	// Unbind the vertex array as to not interfere with anything else
 	glBindVertexArray(0);
 
+	isBuffered = true;
+
 	return true;
 }
 

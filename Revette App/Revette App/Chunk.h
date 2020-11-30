@@ -9,6 +9,11 @@
 
 
 constexpr int CHUNK_SIZE { 32 };
+constexpr unsigned CHUNK_KEY_SHIFT { 5 };
+
+// Generation values
+constexpr unsigned GROUND_LEVEL = 128;
+
 
 class Chunk
 {

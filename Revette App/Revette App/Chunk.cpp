@@ -1,4 +1,6 @@
 #include "Chunk.h"
+#include <algorithm>
+#include <iostream>
 
 
 Chunk::Chunk(unsigned x, unsigned y, std::shared_ptr<WorldGenerator>& generator)
@@ -13,33 +15,33 @@ Chunk::Chunk(unsigned x, unsigned y, std::shared_ptr<WorldGenerator>& generator)
 
 
 
-// Generates the chunk using the chunk generation algorithm
+// Generates the basic ground shape in the chunk.
 bool Chunk::generateChunk()
 {
+	unsigned chunkXOffset = chunkX * 32;
+	unsigned chunkYOffset = chunkY * 32;
+
+	// Loop through each column in the chunk and fill with blocks up to the height level
 	for (unsigned x = 0; x < CHUNK_SIZE; ++x)
 	{
-		for (unsigned y = 0; y < CHUNK_SIZE; ++y)
+		unsigned absoluteX = chunkXOffset + x;
+		
+		float heightOffsetNoiseValue = terrainGenerator->getHeightNoise(static_cast<float>(absoluteX));
+		unsigned heightOffsetValue = static_cast<unsigned>(heightOffsetNoiseValue * 10.0f);
+		unsigned groundHeight = GROUND_LEVEL - heightOffsetValue;
+
+		// Proceed to next column if the entire column of the chunk is above the height level
+		if ((chunkYOffset + CHUNK_SIZE - 1) <= groundHeight) continue;
+		
+		unsigned terrainTopHeight = static_cast<unsigned>(std::max(0, (static_cast<int>(groundHeight) - static_cast<int>(chunkYOffset))));
+
+		for (unsigned y = terrainTopHeight; y < CHUNK_SIZE; ++y)
 		{
-			unsigned globalX = x + chunkX * 32;
-			unsigned globalY = y + chunkY * 32;
-
-			unsigned tileLocation = x + (y << 5);
-
-			unsigned heightOffset = terrainGenerator->getNoiseHeight(static_cast<float>(globalX));
-
-			if (globalY > (16 - heightOffset))
-			{
-				tileData[tileLocation] = { 1, 0 };
-			}
-			else
-			{
-				if (globalY == (16 - heightOffset))
-				{
-					tileData[tileLocation] = { 2, 0 };
-				}
-			}
+			unsigned tileArrayLocation = x + (y << CHUNK_KEY_SHIFT);
+			tileData[tileArrayLocation] = { 1, 0 };
 		}
 	}
+
 	dataHasChanged = true;
 	return true;
 }
@@ -78,7 +80,7 @@ bool Chunk::draw(std::unique_ptr<Shader>& shader, const glm::mat4& projection, c
 		if (!generateMesh()) return false;
 	}
 
-	bool success = tileMesh.get()->draw_mesh(shader, projection, cameraOffset, static_cast<float>(chunkX * 32), static_cast<float>(chunkY * 32));
+	bool success = tileMesh->draw_mesh(shader, projection, cameraOffset, static_cast<float>(chunkX * 32), static_cast<float>(chunkY * 32));
 
 	return success;
 }

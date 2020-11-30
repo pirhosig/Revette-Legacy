@@ -1,4 +1,6 @@
 #include <iostream>
+#include <thread>
+#include <chrono>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -70,7 +72,7 @@ bool App::init()
         return false;
     }
     
-    camera.setPosition(0.0f, 0.0f);
+    camera.setPosition(0.0f, 100.0f);
 
     if (!tilemap.loadChunks()) return false;
     
@@ -114,7 +116,7 @@ void App::processInput()
 void App::render()
 {
     //Rendering commands
-    glClearColor(0.0f, 0.08f, 0.14f, 1.0f);
+    glClearColor(0.29f, 0.643f, 0.85f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     //Calculate the projection matrix
@@ -149,6 +151,8 @@ int App::run()
         processInput();
         render();
         glfwPollEvents();
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
     }
 
     cleanup();

@@ -7,8 +7,12 @@
 #include "Chunk.h"
 #include "WorldGenerator.h"
 
-constexpr unsigned TILEMAP_SIZE = 4;
-constexpr unsigned KEY_SHIFT = 4;
+constexpr unsigned TILEMAP_SIZE = 16;
+constexpr unsigned TILEMAP_KEY_SHIFT = 5;
+
+typedef std::unique_ptr<Chunk>& chunkReference;
+
+
 
 struct coordinates {
 	unsigned x;
@@ -19,8 +23,14 @@ class TileMap
 {
 public:
 	TileMap();
+
 	std::unique_ptr<Chunk>& getChunk(unsigned x, unsigned y);
+	Tile getTile(unsigned tileX, unsigned tileY);
+	void setTile(unsigned tileX, unsigned tileY, Tile tileType);
+
 	bool loadChunks();
+	void populateChunks();
+
 	bool drawChunks(std::unique_ptr<Shader>& shader, const glm::mat4& projection, const glm::vec2& cameraOffset);
 
 	std::shared_ptr<WorldGenerator> terrainGenerator = std::make_shared<WorldGenerator>();

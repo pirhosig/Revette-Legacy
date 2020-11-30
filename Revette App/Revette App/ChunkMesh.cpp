@@ -51,6 +51,9 @@ bool ChunkMesh::createMesh(const std::unique_ptr<Tile[]>& tiles)
 			case 2:
 				addSquare(x, y, 1);
 				break;
+			case 3:
+				addSquare(x, y, 2);
+				break;
 			default:
 				break;
 			}
