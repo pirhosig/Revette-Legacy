@@ -10,7 +10,7 @@ unsigned short test_tile_indices[6]{
 
 
 // Adds a textured tile square to the mesh
-void ChunkMesh::addSquare(unsigned short x, unsigned short y, unsigned texture)
+void ChunkMesh::addSquare(unsigned short x, unsigned short y, unsigned short texture)
 {
 	unsigned short tileLowerX = 0 + x;
 	unsigned short tileUpperX = 1 + x;
@@ -21,7 +21,7 @@ void ChunkMesh::addSquare(unsigned short x, unsigned short y, unsigned texture)
 	unsigned char textureUpperX = 128;
 	unsigned char textureLowerY = 0;
 	unsigned char textureUpperY = 128;
-
+	
 	Vertex test_tile_vertices[4] {
 	tileLowerX, tileLowerY, texture, textureLowerX, textureLowerY,
 	tileUpperX, tileLowerY, texture, textureUpperX, textureLowerY,

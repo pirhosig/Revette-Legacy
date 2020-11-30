@@ -7,7 +7,7 @@ class ChunkMesh :
 	public Mesh
 {
 public:
-	void addSquare(unsigned short x, unsigned short y, unsigned texture);
+	void addSquare(unsigned short x, unsigned short y, unsigned short texture);
 	bool createMesh(const std::unique_ptr<Tile[]>& tiles);
 	bool draw_mesh(std::unique_ptr<Shader>& shader, const glm::mat4& projection, const glm::vec2& cameraOffset, float chunkXPos, float chunkYPos);
 };

@@ -89,7 +89,7 @@ bool Mesh::setupBuffers()
 
 	// Configure the attribute pointers and enable them
 	glVertexAttribPointer(0, 2, GL_UNSIGNED_SHORT, GL_FALSE, sizeof(Vertex), (void*)(0));
-	glVertexAttribPointer(1, 1, GL_UNSIGNED_SHORT, GL_FALSE, sizeof(Vertex), (void*)(4));
+	glVertexAttribIPointer(1, 1, GL_UNSIGNED_SHORT, sizeof(Vertex), (void*)(4));
 	glVertexAttribPointer(2, 2, GL_UNSIGNED_BYTE,  GL_FALSE, sizeof(Vertex), (void*)(6));
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);

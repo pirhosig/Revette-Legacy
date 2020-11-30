@@ -15,6 +15,10 @@ public:
 	App();
 	~App();
 	int run();
+
+	// Opengl callback functions
+	static void scrollwheelCallbackWrapper(GLFWwindow* window, double xOffset, double yOffset);
+	void scrollwheelCallback(double yOffset);
 private:
 	void cleanup();
 	bool init();

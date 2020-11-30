@@ -22,6 +22,7 @@ App::~App()
 
 
 
+// Clean up resources upon application termination
 void App::cleanup()
 {
     glfwTerminate();
@@ -29,6 +30,7 @@ void App::cleanup()
 
 
 
+// Load and/or configure everything that requires it
 bool App::init()
 {
     // Load glfw and configure it
@@ -43,12 +45,19 @@ bool App::init()
         glfwTerminate();
         return false;
     }
+
     glfwMakeContextCurrent(mainWindow);
+    glfwSetWindowUserPointer(mainWindow, this);
+
     // Load opengl function pointers
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cout << "Failed to init glad" << std::endl;
         return false;
     }
+
+    // Set the callback functions for various input events
+    glfwSetScrollCallback(mainWindow, App::scrollwheelCallbackWrapper);
+
     glViewport(0, 0, 1500, 1000);
 
     // Load shader program
@@ -60,11 +69,11 @@ bool App::init()
         std::cout << "Failed to load texture atlas" << std::endl;
         return false;
     }
-
-    camera.setPosition(0.0f, 1.0f);
+    
+    camera.setPosition(0.0f, 0.0f);
 
     if (!tilemap.loadChunks()) return false;
-
+    
     return true;
 }
 
@@ -101,16 +110,15 @@ void App::processInput()
 
 
 
+// The rendering function, called every frame
 void App::render()
 {
     //Rendering commands
     glClearColor(0.0f, 0.08f, 0.14f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    constexpr float zoomFactor = 30.0f;
-
     //Calculate the projection matrix
-    glm::mat4 projection = glm::ortho(0.0f, 1500.0f / zoomFactor, 1000.0f / zoomFactor, 0.0f, -1.0f, 1.0f);
+    glm::mat4 projection = glm::ortho(0.0f, 1500.0f / camera.zoomFactor, 1000.0f / camera.zoomFactor, 0.0f, -1.0f, 1.0f);
 
     //Calculate vertex offset due to camera position
     glm::vec2 cameraPosition = camera.getPosition();
@@ -131,6 +139,7 @@ void App::render()
 
 
 
+// Runs the application
 int App::run()
 {
     if (!init()) {
@@ -144,4 +153,21 @@ int App::run()
 
     cleanup();
     return 0;
+}
+
+
+
+// Callback wrapper for mouse scrolling since member since only static class functions can be used as a callback
+// Calls the member function of the class instance set to manage the window
+void App::scrollwheelCallbackWrapper(GLFWwindow* window, double xOffset, double yOffset)
+{
+    App* appInstance = static_cast<App*>(glfwGetWindowUserPointer(window));
+    appInstance->scrollwheelCallback(yOffset);
+}
+
+
+// Callback function for mouse scrolling
+void App::scrollwheelCallback(double yOffset)
+{
+    camera.zoomFactor += static_cast<float>(yOffset) / 2.0f;
 }
