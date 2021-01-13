@@ -7,12 +7,14 @@ WorldGenerator::WorldGenerator()
 	// Set noise types
 	noiseCave.SetNoiseType(FastNoise::Simplex);
 	noiseFoliage.SetNoiseType(FastNoise::WhiteNoise);
+	noiseSecondaryFoliage.SetNoiseType(FastNoise::WhiteNoise);
 	noiseHeight.SetNoiseType(FastNoise::SimplexFractal);
 
 	// Set seed values
 	noiseCave.SetSeed(seed);
 	noiseFoliage.SetSeed(seed);
-	noiseHeight.SetSeed(seed + 1);
+	noiseSecondaryFoliage.SetSeed(seed + 0x12);
+	noiseHeight.SetSeed(seed + 0xAF);
 }
 
 
@@ -32,8 +34,16 @@ float WorldGenerator::getCaveNoise(float xValue, float yValue)
 
 float WorldGenerator::getFoliageNoise(float xValue)
 {
-
 	float rawNoise = noiseFoliage.GetWhiteNoise(xValue, 0.0f);
+	float normalisedNoise = (rawNoise + 1.0f) / 2.0f;
+	return normalisedNoise;
+}
+
+
+
+float WorldGenerator::getSecondaryFoliageNoise(float xValue)
+{
+	float rawNoise = noiseSecondaryFoliage.GetWhiteNoise(xValue, 0.0f);
 	float normalisedNoise = (rawNoise + 1.0f) / 2.0f;
 	return normalisedNoise;
 }

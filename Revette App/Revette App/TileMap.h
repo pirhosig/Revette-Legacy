@@ -9,6 +9,7 @@
 
 constexpr unsigned TILEMAP_SIZE = 16;
 constexpr unsigned TILEMAP_KEY_SHIFT = 5;
+constexpr unsigned MAX_BLOCK = TILEMAP_SIZE * CHUNK_SIZE;
 
 typedef std::unique_ptr<Chunk>& chunkReference;
 

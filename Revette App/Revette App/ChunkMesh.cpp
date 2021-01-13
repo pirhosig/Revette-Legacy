@@ -43,21 +43,11 @@ bool ChunkMesh::createMesh(const std::unique_ptr<Tile[]>& tiles)
 		for (unsigned y = 0; y < 32; ++y)
 		{
 			unsigned tile_location = (x + (y << 5));
-			switch (tiles[tile_location].type)
+			int type = tiles[tile_location].type;
+			if (type > 0)
 			{
-			case 1:
-				addSquare(x, y, 0);
-				break;
-			case 2:
-				addSquare(x, y, 1);
-				break;
-			case 3:
-				addSquare(x, y, 2);
-				break;
-			default:
-				break;
-			}
-			
+				addSquare(x, y, type - 1);
+			}			
 		}
 	}
 	return true;

@@ -1,5 +1,19 @@
 #include "TileMap.h"
 #include <iostream>
+#include <algorithm>
+
+
+
+const bool TREE_LEAVES[5][5] = {
+	false, true,  true,  true,  false,
+	true,  true,  true,  true,  true,
+	true,  true,  true,  true,  true,
+	true,  true,  true,  true,  true,
+	false, true,  true,  true, false
+};
+
+
+
 
 TileMap::TileMap()
 {
@@ -41,6 +55,7 @@ void TileMap::setTile(unsigned tileX, unsigned tileY, Tile tileType)
 {
 	unsigned chunkX = tileX / CHUNK_SIZE;
 	unsigned chunkY = tileY / CHUNK_SIZE;
+	if (chunkX < 0 || chunkY < 0 || chunkX >= TILEMAP_SIZE || chunkY >= TILEMAP_SIZE) return;
 	unsigned localX = tileX - (chunkX * CHUNK_SIZE);
 	unsigned localY = tileY - (chunkY * CHUNK_SIZE);
 
@@ -88,10 +103,35 @@ void TileMap::populateChunks()
 		const unsigned foliageValue = static_cast<unsigned>(foliageNoise * 100.0f);
 		if (foliageValue > 95)
 		{
-			// Make tree
-			for (unsigned y = 1; y < 6; ++y)
+			// Get tree height
+			const float secondaryFoliageNoise = terrainGenerator->getSecondaryFoliageNoise(xFloat);
+			const unsigned treeHeight = static_cast<unsigned>(secondaryFoliageNoise * 10.0f) + 4;
+			
+			const unsigned treeBaseY = groundHeight - 1;
+			const unsigned treeTopY  = groundHeight - treeHeight;
+			
+			// Make tree trunk
+			for (unsigned y = 0; y < treeHeight; ++y)
 			{
-				setTile(x, groundHeight - y, { 3, 0 });
+				setTile(x, treeBaseY - y, { 3, 0 });
+			}
+			unsigned leafGridX = x - 2;
+			unsigned leafGridY = treeTopY - 3;
+
+			// Make leaves
+			for (int lX = 0; lX < 5; ++lX)
+			{
+				for (int lY = 0; lY < 5; ++lY)
+				{
+					if (TREE_LEAVES[lX][lY])
+					{
+						// Create leaf if tile is air
+						if (getTile(leafGridX + lX, leafGridY + lY).type == 0)
+						{
+							setTile(leafGridX + lX, leafGridY + lY, { 4, 0 });
+						}
+					}
+				}
 			}
 		}
 	}
