@@ -37,8 +37,20 @@ bool Chunk::generateChunk()
 
 		for (unsigned y = terrainTopHeight; y < CHUNK_SIZE; ++y)
 		{
+			unsigned absoluteY = chunkYOffset + y;
+			float caveNoise = terrainGenerator->getCaveNoise(absoluteX, absoluteY);
+
 			unsigned tileArrayLocation = x + (y << CHUNK_KEY_SHIFT);
-			tileData[tileArrayLocation] = { 1, 0 };
+
+			if (absoluteY < groundHeight + 5) tileData[tileArrayLocation] = { 1, 0 };
+			else
+			{
+				if (caveNoise > 0.8f)
+				{
+					tileData[tileArrayLocation] = { 6, 0 };
+				}
+				else tileData[tileArrayLocation] = { 5, 0 };
+			}
 		}
 	}
 

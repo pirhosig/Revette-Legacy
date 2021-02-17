@@ -5,7 +5,7 @@
 WorldGenerator::WorldGenerator()
 {
 	// Set noise types
-	noiseCave.SetNoiseType(FastNoise::Simplex);
+	noiseCave.SetNoiseType(FastNoise::SimplexFractal);
 	noiseFoliage.SetNoiseType(FastNoise::WhiteNoise);
 	noiseSecondaryFoliage.SetNoiseType(FastNoise::WhiteNoise);
 	noiseHeight.SetNoiseType(FastNoise::SimplexFractal);
@@ -15,6 +15,24 @@ WorldGenerator::WorldGenerator()
 	noiseFoliage.SetSeed(seed);
 	noiseSecondaryFoliage.SetSeed(seed + 0x12);
 	noiseHeight.SetSeed(seed + 0xAF);
+
+	// VERY HIGHLY EXTREMELY TEMPORARY
+	int* LEAVES = new int[25]
+	{
+		0, 1, 1, 1, 0,
+		1, 1, 1, 1, 1,
+		1, 1, 1, 1, 1,
+		1, 1, 1, 1, 1,
+		0, 1, 1, 1, 0
+	};
+
+	TilePlacementInfo* LEAFPALLATE = new TilePlacementInfo[2]
+	{
+		TilePlacementInfo({0, 0}, TilePlaceMode::SET),
+		TilePlacementInfo({4, 0}, TilePlaceMode::SET)
+	};
+
+	treeLeaves.setData(5, 5, LEAVES, LEAFPALLATE, 2, 2);
 }
 
 

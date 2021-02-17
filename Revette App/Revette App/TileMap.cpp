@@ -86,7 +86,6 @@ bool TileMap::loadChunks()
 void TileMap::populateChunks()
 {
 	// Add trees
-
 	for (unsigned x = 0; x < (CHUNK_SIZE * TILEMAP_SIZE); ++x)
 	{
 		const float xFloat = static_cast<float>(x);
@@ -115,21 +114,18 @@ void TileMap::populateChunks()
 			{
 				setTile(x, treeBaseY - y, { 3, 0 });
 			}
-			unsigned leafGridX = x - 2;
-			unsigned leafGridY = treeTopY - 3;
+			unsigned leafGridX = x;
+			unsigned leafGridY = treeTopY;
 
-			// Make leaves
-			for (int lX = 0; lX < 5; ++lX)
+			for (int lX = -2; lX < 3; ++lX)
 			{
-				for (int lY = 0; lY < 5; ++lY)
+				for (int lY = -2; lY < 3; ++lY)
 				{
-					if (TREE_LEAVES[lX][lY])
+					Tile oldTile = getTile(leafGridX + lX, leafGridY + lY);
+					Tile newTile = terrainGenerator->treeLeaves.getTile(lX, lY, oldTile);
+					if (newTile.type != oldTile.type || newTile.extraValue != oldTile.extraValue)
 					{
-						// Create leaf if tile is air
-						if (getTile(leafGridX + lX, leafGridY + lY).type == 0)
-						{
-							setTile(leafGridX + lX, leafGridY + lY, { 4, 0 });
-						}
+						setTile(leafGridX + lX, leafGridY + lY, newTile);
 					}
 				}
 			}

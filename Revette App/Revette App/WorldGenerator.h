@@ -1,6 +1,6 @@
 #pragma once
 #include "Other/FastNoise.h"
-
+#include "StructureData.h"
 
 
 class WorldGenerator
@@ -11,6 +11,9 @@ public:
 	float getFoliageNoise(float xValue);
 	float getSecondaryFoliageNoise(float xValue);
 	float getHeightNoise(float xValue);
+	
+	StructureData treeLeaves;
+
 private:
 	FastNoise noiseCave;
 	FastNoise noiseFoliage;
