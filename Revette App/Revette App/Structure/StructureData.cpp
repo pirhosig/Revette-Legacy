@@ -38,16 +38,34 @@ Tile StructureData::getTile(const int x, const int y, const Tile currentTile)
 	int tileIndex = dataArray[tileLocation];
 
 	// Do stuff based on the placement mode
-	TilePlacementInfo tileInfo = tilePallate[tileIndex];
+	const TilePlacementInfo& tileInfo = tilePallate[tileIndex];
 	Tile returnTile;
 	switch (tileInfo.mode)
 	{
 	case (TilePlaceMode::SET):
+	{
 		returnTile = tileInfo.tile;
 		break;
+	}
+	case (TilePlaceMode::REPLACE):
+	{
+		bool replace = false;
+		for (unsigned i = 0; i < tileInfo.extraTileCount; ++i)
+		{
+			if (tileInfo.extraTiles[i].type == currentTile.type)
+			{
+				replace = true;
+				break;
+			}
+		}
+		if (replace) returnTile = tileInfo.tile;
+		else returnTile = currentTile;
+		break;
+	}
 	default:
 		returnTile = {0, 0};
 		break;
+
 	}
 
 	return returnTile;

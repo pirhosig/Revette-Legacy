@@ -12,11 +12,11 @@ enum class TilePlaceMode
 class TilePlacementInfo
 {
 public:
-	TilePlacementInfo(Tile tileData, TilePlaceMode tileMode, int extraCount=0, Tile* extraData=nullptr);
+	TilePlacementInfo(Tile tileData, TilePlaceMode tileMode, unsigned extraCount=0, Tile* extraData=nullptr);
 	~TilePlacementInfo();
 
 	Tile tile;
 	TilePlaceMode mode;
-	int extraTileCount;
+	unsigned extraTileCount;
 	Tile* extraTiles;
 };

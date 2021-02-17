@@ -47,7 +47,7 @@ bool Texture::loadTexture(const char* texturePath)
 	int atlasTextureCount = atlasWidth * atlasHeight;
 
 	// Allocate storage for the texture array
-	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGB, TEXTURE_SIZE, TEXTURE_SIZE, atlasTextureCount, 0, pixelFormat, GL_UNSIGNED_BYTE, NULL);
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, TEXTURE_SIZE, TEXTURE_SIZE, atlasTextureCount, 0, pixelFormat, GL_UNSIGNED_BYTE, NULL);
 
 	// Load each individual texture into the texture array
 	for (int j = 0; j < atlasHeight; ++j)

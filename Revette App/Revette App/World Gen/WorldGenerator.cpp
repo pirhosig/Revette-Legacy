@@ -26,10 +26,14 @@ WorldGenerator::WorldGenerator()
 		0, 1, 1, 1, 0
 	};
 
+	Tile* LOG = new Tile[1];
+	LOG[0].type = 0;
+	LOG[0].extraValue = 0;
+
 	TilePlacementInfo* LEAFPALLATE = new TilePlacementInfo[2]
 	{
 		TilePlacementInfo({0, 0}, TilePlaceMode::SET),
-		TilePlacementInfo({4, 0}, TilePlaceMode::SET)
+		TilePlacementInfo({4, 0}, TilePlaceMode::REPLACE, 1, LOG)
 	};
 
 	treeLeaves.setData(5, 5, LEAVES, LEAFPALLATE, 2, 2);

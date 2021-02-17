@@ -100,10 +100,11 @@ void TileMap::populateChunks()
 		// Get foliage noise
 		const float foliageNoise = terrainGenerator->getFoliageNoise(xFloat);
 		const unsigned foliageValue = static_cast<unsigned>(foliageNoise * 100.0f);
+		const float secondaryFoliageNoise = terrainGenerator->getSecondaryFoliageNoise(xFloat);
+		const unsigned secondaryFoliageValue = static_cast<unsigned>(secondaryFoliageNoise * 100.0f);
 		if (foliageValue > 95)
 		{
 			// Get tree height
-			const float secondaryFoliageNoise = terrainGenerator->getSecondaryFoliageNoise(xFloat);
 			const unsigned treeHeight = static_cast<unsigned>(secondaryFoliageNoise * 10.0f) + 4;
 			
 			const unsigned treeBaseY = groundHeight - 1;
@@ -129,6 +130,10 @@ void TileMap::populateChunks()
 					}
 				}
 			}
+		}
+		else if (secondaryFoliageValue > 95)
+		{
+			setTile(x, groundHeight - 1, { 7, 0 });
 		}
 	}
 }
