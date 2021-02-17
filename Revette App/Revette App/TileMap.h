@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 
 #include "Chunk.h"
-#include "WorldGenerator.h"
+#include "World Gen/WorldGenerator.h"
 
 constexpr unsigned TILEMAP_SIZE = 16;
 constexpr unsigned TILEMAP_KEY_SHIFT = 5;

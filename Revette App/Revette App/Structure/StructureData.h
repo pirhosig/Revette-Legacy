@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
-#include "Tile.h"
-#include "Structure/TilePlacementInfo.h"
+#include "../Tile.h"
+#include "../Structure/TilePlacementInfo.h"
 
 
 

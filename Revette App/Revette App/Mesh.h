@@ -5,8 +5,8 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
-#include "Vertex.h"
-#include "Shader.h"
+#include "Rendering/Vertex.h"
+#include "Rendering/Shader.h"
 
 class Mesh
 {

@@ -2,9 +2,9 @@
 #include <memory>
 
 #include "ChunkMesh.h"
-#include "Shader.h"
+#include "Rendering/Shader.h"
 #include "Tile.h"
-#include "WorldGenerator.h"
+#include "World Gen/WorldGenerator.h"
 
 
 

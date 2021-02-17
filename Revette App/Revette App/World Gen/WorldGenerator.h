@@ -1,6 +1,6 @@
 #pragma once
-#include "Other/FastNoise.h"
-#include "StructureData.h"
+#include "../Other/FastNoise.h"
+#include "../Structure/StructureData.h"
 
 
 class WorldGenerator

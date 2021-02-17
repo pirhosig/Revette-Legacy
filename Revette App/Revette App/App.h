@@ -5,8 +5,8 @@
 #include <GLFW/glfw3.h>
 
 #include "Camera.h"
-#include "Shader.h"
-#include "Texture.h"
+#include "Rendering/Shader.h"
+#include "Rendering/Texture.h"
 #include "TileMap.h"
 
 class App
