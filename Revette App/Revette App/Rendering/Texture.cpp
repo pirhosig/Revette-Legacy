@@ -1,11 +1,11 @@
 #include <algorithm>
-#include <iostream>
 #include <string>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <stb_image.h>
 
+#include "../Logging/GlobalAppLog.h"
 #include "Texture.h"
 
 
@@ -37,7 +37,9 @@ bool Texture::loadTexture(const char* texturePath)
 	// Check if the texture atlas image was properly loaded
 	if (!imageDataArray)
 	{
-		std::cout << "Failed to load texture atlas from file: " << texturePath << std::endl;
+		std::string errorMessage("Failed to load texture atlas from file: ");
+		errorMessage += texturePath;
+		GlobalAppLog.writeLog(errorMessage, LOGMODE::ERROR);
 		return false;
 	}
 

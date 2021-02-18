@@ -1,6 +1,5 @@
 #include "Chunk.h"
 #include <algorithm>
-#include <iostream>
 
 
 Chunk::Chunk(unsigned x, unsigned y, std::shared_ptr<WorldGenerator>& generator)

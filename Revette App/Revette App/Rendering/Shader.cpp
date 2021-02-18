@@ -1,7 +1,10 @@
 #include "Shader.h"
 #include <fstream>
 #include <sstream>
-#include <iostream>
+
+#include "../Logging/GlobalAppLog.h"
+
+
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 	std::string vertexCode;
@@ -28,7 +31,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 	}
 	catch (std::ifstream::failure exception)
 	{
-		std::cout << "Error reading shader files" << std::endl;
+		GlobalAppLog.writeLog("Error reading shader files", LOGMODE::ERROR);
 	}
 
 	const char* vertexShaderCode = vertexCode.c_str();
@@ -45,7 +48,8 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 	if (!success)
 	{
 		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		std::cout << "Failed to compile vertex shader.\n" << infoLog << std::endl;
+		GlobalAppLog.writeLog("Failed to compile vertex shader:", LOGMODE::ERROR);
+		GlobalAppLog.writeLog(infoLog, LOGMODE::UNPREFIXED);
 	}
 
 	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -55,7 +59,8 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 	if (!success)
 	{
 		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-		std::cout << "Failed to compile fragment shader.\n" << infoLog << std::endl;
+		GlobalAppLog.writeLog("Failed to compile fragment shader.", LOGMODE::ERROR);
+		GlobalAppLog.writeLog(infoLog, LOGMODE::UNPREFIXED);
 	}
 
 	programID = glCreateProgram();
@@ -66,7 +71,8 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 	if (!success)
 	{
 		glGetProgramInfoLog(programID, 512, NULL, infoLog);
-		std::cout << "Failed to link shader program.\n" << infoLog << std::endl;
+		GlobalAppLog.writeLog("Failed to link shader program.", LOGMODE::ERROR);
+		GlobalAppLog.writeLog(infoLog, LOGMODE::UNPREFIXED);
 	}
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);

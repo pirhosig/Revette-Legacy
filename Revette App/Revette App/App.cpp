@@ -1,4 +1,3 @@
-#include <iostream>
 #include <thread>
 #include <chrono>
 
@@ -6,6 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "App.h"
+#include "Logging/GlobalAppLog.h"
 
 
 
@@ -36,14 +36,19 @@ void App::cleanup()
 bool App::init()
 {
     // Load glfw and configure it
+    GlobalAppLog.writeLog("Loading GLFW", LOGMODE::INFO);
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+
     // Create a window object
+    GlobalAppLog.writeLog("Creating window", LOGMODE::INFO);
     mainWindow = glfwCreateWindow(1500, 1000, "Revette", NULL, NULL);
     if (mainWindow == NULL) {
-        std::cout << "Error creating window" << std::endl;
+
+        GlobalAppLog.writeLog("Error creating window", LOGMODE::FATAL);
         glfwTerminate();
         return false;
     }
@@ -51,11 +56,14 @@ bool App::init()
     glfwMakeContextCurrent(mainWindow);
     glfwSetWindowUserPointer(mainWindow, this);
 
+
     // Load opengl function pointers
+    GlobalAppLog.writeLog("Loading opengl function pointers", LOGMODE::INFO);
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        std::cout << "Failed to init glad" << std::endl;
+        GlobalAppLog.writeLog("Failed to initialize glad", LOGMODE::FATAL);
         return false;
     }
+
 
     // Set the callback functions for various input events
     glfwSetScrollCallback(mainWindow, App::scrollwheelCallbackWrapper);
@@ -68,7 +76,7 @@ bool App::init()
     // Load texture atlas
     if (!textureAtlas.loadTexture("texture_atlas.png"))
     {
-        std::cout << "Failed to load texture atlas" << std::endl;
+        GlobalAppLog.writeLog("Failed to load texture atlas", LOGMODE::ERROR);
         return false;
     }
     
@@ -132,7 +140,7 @@ void App::render()
     // Draw the tilemap
     if (!tilemap.drawChunks(shader, projection, cameraOffset))
     {
-        std::cout << "Error drawing tilemap" << std::endl;
+        GlobalAppLog.writeLog("Failed to draw tilemap", LOGMODE::ERROR);
     }
 
     // Swap buffers
@@ -145,6 +153,7 @@ void App::render()
 int App::run()
 {
     if (!init()) {
+        GlobalAppLog.writeLog("Initialization failed", LOGMODE::FATAL);
         return -1;
     }
     while (!glfwWindowShouldClose(mainWindow)) {
