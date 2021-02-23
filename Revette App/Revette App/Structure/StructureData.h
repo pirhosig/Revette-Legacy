@@ -8,11 +8,13 @@
 class StructureData
 {
 public:
-	void setData(unsigned x, unsigned y, int* data, TilePlacementInfo* tiles, int offsetX, int offsetY);
+	bool loadDataFromFile(const char* filePath);
+	void setData(unsigned x, unsigned y, unsigned* data, unsigned tileTypeCount, TilePlacementInfo* tiles, int offsetX, int offsetY);
 	Tile getTile(const int x, const int y, const Tile currentTile);
 
 	unsigned sizeX;
 	unsigned sizeY;
+	unsigned pallateSize;
 	int xOffset;
 	int yOffset;
 	
@@ -20,6 +22,6 @@ public:
 
 private:
 	std::unique_ptr<TilePlacementInfo[]> tilePallate;
-	std::unique_ptr<int[]> dataArray;
+	std::unique_ptr<unsigned[]> dataArray;
 };
 

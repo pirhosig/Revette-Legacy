@@ -1,8 +1,107 @@
 #include "StructureData.h"
 
+#include <fstream>
+
+#include "../Logging/GlobalAppLog.h"
 
 
-void StructureData::setData(unsigned x, unsigned y, int* data, TilePlacementInfo* tiles, int offsetX, int offsetY)
+
+// Loads the data for a structure from a file. Currently loads from a plaintext file which could later be optimised.
+bool StructureData::loadDataFromFile(const char* filePath)
+{
+	// Do not load any data if data already exists
+	if (hasData)
+	{
+		GlobalAppLog.writeLog("Overwrote existing structure from file:", LOGMODE::INFO);
+		GlobalAppLog.writeLog(filePath, LOGMODE::UNPREFIXED);
+	}
+
+	std::ifstream dataFile(filePath);
+	
+	// Load metadata
+	unsigned x;
+	unsigned y;
+	int offsetX;
+	int offsetY;
+	unsigned sizePallate;
+	
+	// Read metadata from file
+	dataFile
+		>> x
+		>> y
+		>> offsetX
+		>> offsetY
+		>> sizePallate;
+
+	// Set metadata
+	sizeX = x;
+	sizeY = y;
+	xOffset = offsetX;
+	yOffset = offsetY;
+	pallateSize = sizePallate;
+
+	// Create underlying data containers based on the size described in the metadata
+	tilePallate = std::make_unique<TilePlacementInfo[]>(pallateSize);
+	dataArray = std::make_unique<unsigned[]>(x * y);
+
+	// Load tile pallate
+	for (unsigned i = 0; i < pallateSize; ++i)
+	{
+		int tileType;
+		int extraData;
+		unsigned tilePlacementMode;
+		unsigned extraTileCount;
+
+		// Read from file
+		dataFile
+			>> tileType
+			>> extraData
+			>> tilePlacementMode
+			>> extraTileCount;
+
+		// Read in extra informational tiles if they exist
+		Tile* extraTiles = nullptr;
+		if (extraTileCount > 0)
+		{
+			extraTiles = new Tile[extraTileCount];
+			for (unsigned j = 0; j < extraTileCount; ++j)
+			{
+				int eTileType;
+				int eExtraData;
+
+				dataFile
+					>> eTileType
+					>> eExtraData;
+
+				extraTiles[j] = { eTileType, eExtraData };
+			}
+		}
+
+		tilePallate[i] = TilePlacementInfo(
+			Tile { tileType, extraData },
+			static_cast<TilePlaceMode>(tilePlacementMode),
+			extraTileCount,
+			extraTiles
+		);
+	}
+
+	// Load tile data
+	for (unsigned i = 0; i < x * y; ++i)
+	{
+		unsigned tileIndex;
+		// Read from file
+		dataFile >> tileIndex;
+		dataArray[i] = tileIndex;
+	}
+
+	hasData = true;
+
+	return true;
+};
+
+
+
+void StructureData::setData(unsigned x, unsigned y, unsigned* data, unsigned tileTypeCount, TilePlacementInfo* tiles, int offsetX, int offsetY)
 {
 	// Set pallate data, which describes the types of tiles in "dataArray"
 	tilePallate.reset(tiles);

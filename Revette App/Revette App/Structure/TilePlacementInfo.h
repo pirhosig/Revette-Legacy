@@ -1,6 +1,9 @@
 #pragma once
 #include "../Tile.h"
 
+#include <memory>
+
+
 
 enum class TilePlaceMode
 {
@@ -12,11 +15,11 @@ enum class TilePlaceMode
 class TilePlacementInfo
 {
 public:
+	TilePlacementInfo();
 	TilePlacementInfo(Tile tileData, TilePlaceMode tileMode, unsigned extraCount=0, Tile* extraData=nullptr);
-	~TilePlacementInfo();
 
 	Tile tile;
 	TilePlaceMode mode;
 	unsigned extraTileCount;
-	Tile* extraTiles;
+	std::unique_ptr<Tile[]> extraTiles;
 };
