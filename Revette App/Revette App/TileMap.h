@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 
 #include "Chunk.h"
+#include "Rendering/TextureArray.h"
 #include "World Gen/WorldGenerator.h"
 
 constexpr unsigned TILEMAP_SIZE = 16;
@@ -32,7 +33,7 @@ public:
 	bool loadChunks();
 	void populateChunks();
 
-	bool drawChunks(std::unique_ptr<Shader>& shader, const glm::mat4& projection, const glm::vec2& cameraOffset);
+	bool drawChunks(std::unique_ptr<Shader>& shader, TextureArray& tilemap, const glm::mat4& projection, const glm::vec2& cameraOffset);
 
 	std::shared_ptr<WorldGenerator> terrainGenerator = std::make_shared<WorldGenerator>();
 private:

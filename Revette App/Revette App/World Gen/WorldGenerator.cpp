@@ -17,7 +17,10 @@ WorldGenerator::WorldGenerator()
 	noiseSecondaryFoliage.SetSeed(seed + 0x12);
 	noiseHeight.SetSeed(seed + 0xAF);
 
-	if (!treeLeaves.loadDataFromFile("leaves.txt"))
+	//Set noise octaves
+	noiseCave.SetFractalOctaves(4);
+
+	if (!treeLeaves.loadDataFromFile("./Assets/Structures/leaves.txt"))
 	{
 		GlobalAppLog.writeLog("Error loading trees", LOGMODE::ERROR);
 	}
@@ -27,7 +30,7 @@ WorldGenerator::WorldGenerator()
 
 float WorldGenerator::getCaveNoise(float xValue, float yValue)
 {
-	constexpr float caveNoiseScale = 0.5f;
+	constexpr float caveNoiseScale = 0.4f;
 
 	float scaledXValue = xValue / caveNoiseScale;
 	float scaledYValue = yValue / caveNoiseScale;

@@ -37,7 +37,7 @@ bool Chunk::generateChunk()
 		for (unsigned y = terrainTopHeight; y < CHUNK_SIZE; ++y)
 		{
 			unsigned absoluteY = chunkYOffset + y;
-			float caveNoise = terrainGenerator->getCaveNoise(absoluteX, absoluteY);
+			float caveNoise = terrainGenerator->getCaveNoise(static_cast<float>(absoluteX), static_cast<float>(absoluteY));
 
 			unsigned tileArrayLocation = x + (y << CHUNK_KEY_SHIFT);
 

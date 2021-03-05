@@ -30,7 +30,7 @@ void Mesh::clearMesh()
 
 
 
-bool Mesh::draw(std::unique_ptr<Shader>& shader, const glm::mat4& projection, const glm::vec2& cameraOffset, const glm::vec2& chunkOffset)
+bool Mesh::draw(std::unique_ptr<Shader>& shader, const glm::mat4& projection, const glm::vec2& cameraOffset, const glm::vec2& offset)
 {
 	if (!meshExists) return true;
 	if (!isBuffered)
@@ -52,7 +52,7 @@ bool Mesh::draw(std::unique_ptr<Shader>& shader, const glm::mat4& projection, co
 	//Calculate the transformation matrix
 	glm::mat4 model = glm::mat4(1.0f);
 	//Translate vertices to chunk position
-	model = glm::translate(model, glm::vec3(chunkOffset, 0.0f));
+	model = glm::translate(model, glm::vec3(offset, 0.0f));
 	//Translate vertices relative to the camera
 	model = glm::translate(model, glm::vec3(cameraOffset, 0.0f));
 	const glm::mat4 vertexTranformationMatrix = projection * model;

@@ -71,10 +71,10 @@ bool App::init()
     glViewport(0, 0, 1500, 1000);
 
     // Load shader program
-    shader = std::make_unique<Shader>("basic.vs", "basic.fs");
+    shader = std::make_unique<Shader>("./Assets/Shaders/chunk.vs", "./Assets/Shaders/chunk.fs");
 
     // Load texture atlas
-    if (!textureAtlas.loadTexture("texture_atlas.png"))
+    if (!textureAtlas.loadTexture("./Assets/Textures/texture_atlas.png"))
     {
         GlobalAppLog.writeLog("Failed to load texture atlas", LOGMODE::ERROR);
         return false;
@@ -134,15 +134,13 @@ void App::render()
     glm::vec2 cameraPosition = camera.getPosition();
     glm::vec2 cameraOffset = cameraPosition * -1.0f;
 
-    textureAtlas.bindTexture();
-
     // Render the frame
     // Draw the tilemap
-    if (!tilemap.drawChunks(shader, projection, cameraOffset))
+    if (!tilemap.drawChunks(shader, textureAtlas, projection, cameraOffset))
     {
         GlobalAppLog.writeLog("Failed to draw tilemap", LOGMODE::ERROR);
     }
-
+    
     // Swap buffers
     glfwSwapBuffers(mainWindow);
 }
@@ -161,7 +159,7 @@ int App::run()
         render();
         glfwPollEvents();
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        std::this_thread::sleep_for(std::chrono::milliseconds(6));
     }
 
     cleanup();
@@ -177,6 +175,7 @@ void App::scrollwheelCallbackWrapper(GLFWwindow* window, double xOffset, double 
     App* appInstance = static_cast<App*>(glfwGetWindowUserPointer(window));
     appInstance->scrollwheelCallback(yOffset);
 }
+
 
 
 // Callback function for mouse scrolling

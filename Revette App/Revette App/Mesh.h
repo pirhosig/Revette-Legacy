@@ -13,7 +13,7 @@ class Mesh
 public:
 	void addVertices(Vertex* vertexData, unsigned vertexCount, unsigned short* indexData, unsigned indexCount);
 	void clearMesh();
-	bool draw(std::unique_ptr<Shader>& shader, const glm::mat4& projection, const glm::vec2& cameraOffset, const glm::vec2& chunkOffset);
+	bool draw(std::unique_ptr<Shader>& shader, const glm::mat4& projection, const glm::vec2& cameraOffset, const glm::vec2& offset);
 	bool setupBuffers();
 	bool bufferData();
 	bool isBuffered {false};

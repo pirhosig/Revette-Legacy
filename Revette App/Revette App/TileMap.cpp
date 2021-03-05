@@ -1,4 +1,5 @@
 #include "TileMap.h"
+
 #include <algorithm>
 
 
@@ -139,8 +140,10 @@ void TileMap::populateChunks()
 
 
 
-bool TileMap::drawChunks(std::unique_ptr<Shader>& shader, const glm::mat4& projection, const glm::vec2& cameraOffset)
+bool TileMap::drawChunks(std::unique_ptr<Shader>& shader, TextureArray& tilemap, const glm::mat4& projection, const glm::vec2& cameraOffset)
 {
+	tilemap.bindTexture();
+
 	bool success = true;
 	for (unsigned i = 0; i < TILEMAP_SIZE; ++i)
 	{

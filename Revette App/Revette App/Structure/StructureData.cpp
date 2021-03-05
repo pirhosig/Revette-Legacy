@@ -6,6 +6,20 @@
 
 
 
+// Empty initialisation
+StructureData::StructureData()
+{
+	sizeX = 0;
+	sizeY = 0;
+	xOffset = 0;
+	yOffset = 0;
+	pallateSize = 0;
+
+	hasData = false;
+};
+
+
+
 // Loads the data for a structure from a file. Currently loads from a plaintext file which could later be optimised.
 bool StructureData::loadDataFromFile(const char* filePath)
 {

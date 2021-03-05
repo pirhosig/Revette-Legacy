@@ -6,8 +6,10 @@
 
 #include "Camera.h"
 #include "Rendering/Shader.h"
-#include "Rendering/Texture.h"
+#include "Rendering/TextureArray.h"
 #include "TileMap.h"
+
+
 
 class App
 {
@@ -28,8 +30,10 @@ private:
 	GLFWwindow* mainWindow;
 	std::unique_ptr<Shader> shader;
 
-	Texture textureAtlas;
+	TextureArray textureAtlas;
+
 	TileMap tilemap;
+
 	Camera camera;
 };
 

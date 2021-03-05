@@ -3,12 +3,12 @@
 
 
 
-class Texture
+class TextureArray
 {
 public:
 	void bindTexture();
-	bool loadTexture(const char* textureFilePath, GLenum imageType);
+	bool loadTexture(const char* texturePath);
 
-private:
 	GLuint textureID = 0;
 };
+
