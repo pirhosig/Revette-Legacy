@@ -2,7 +2,7 @@
 class Entity
 {
 public:
-	Entity(const float xPos, const float yPos);
+	Entity();
 
 	float x;
 	float y;

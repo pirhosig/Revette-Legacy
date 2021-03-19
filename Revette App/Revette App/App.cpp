@@ -70,8 +70,9 @@ bool App::init()
 
     glViewport(0, 0, 1500, 1000);
 
-    // Load shader program
-    shader = std::make_unique<Shader>("./Assets/Shaders/chunk.vs", "./Assets/Shaders/chunk.fs");
+    // Load shader programs
+    chunkShader  = std::make_unique<Shader>("./Assets/Shaders/chunk.vs",  "./Assets/Shaders/chunk.fs" );
+    entityShader = std::make_unique<Shader>("./Assets/Shaders/entity.vs", "./Assets/Shaders/entity.fs");
 
     // Load texture atlas
     if (!textureAtlas.loadTexture("./Assets/Textures/texture_atlas.png"))
@@ -80,7 +81,7 @@ bool App::init()
         return false;
     }
     
-    camera.setPosition(0.0f, 100.0f);
+    player.setPosition(0.0f, 100.0f);
 
     if (!tilemap.loadChunks()) return false;
     
@@ -89,32 +90,45 @@ bool App::init()
 
 
 
+// This function is called in the main application loop.
+// This is where events in the application other than input and rendering should be processed.
+void App::loop()
+{
+    // Set the camera to the player's position
+    camera.setPosition(player.x, player.y);
+}
+
+
+
 void App::processInput()
 {
+    // Call glfw callbacks
+    glfwPollEvents();
+
     // Check for exit
     if (glfwGetKey(mainWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     {
         glfwSetWindowShouldClose(mainWindow, true);
     }
     
-    float cameraSpeed = 1.5f;
+    const float cameraSpeed = 1.5f;
 
-    //Movement
+    // Player movement
     if (glfwGetKey(mainWindow, GLFW_KEY_W) == GLFW_PRESS)
     {
-        camera.translate(0.0f, -cameraSpeed);
+        player.move(0.0f, -cameraSpeed);
     }
     if (glfwGetKey(mainWindow, GLFW_KEY_S) == GLFW_PRESS)
     {
-        camera.translate(0.0f, cameraSpeed);
+        player.move(0.0f, cameraSpeed);
     }
     if (glfwGetKey(mainWindow, GLFW_KEY_A) == GLFW_PRESS)
     {
-        camera.translate(-cameraSpeed, 0.0f);
+        player.move(-cameraSpeed, 0.0f);
     }
     if (glfwGetKey(mainWindow, GLFW_KEY_D) == GLFW_PRESS)
     {
-        camera.translate(cameraSpeed, 0.0f);
+        player.move(cameraSpeed, 0.0f);
     }
 }
 
@@ -136,7 +150,7 @@ void App::render()
 
     // Render the frame
     // Draw the tilemap
-    if (!tilemap.drawChunks(shader, textureAtlas, projection, cameraOffset))
+    if (!tilemap.drawChunks(chunkShader, textureAtlas, projection, cameraOffset))
     {
         GlobalAppLog.writeLog("Failed to draw tilemap", LOGMODE::ERROR);
     }
@@ -155,9 +169,12 @@ int App::run()
         return -1;
     }
     while (!glfwWindowShouldClose(mainWindow)) {
+        // Get input
         processInput();
+        // Process events
+        loop();
+        // Render frame
         render();
-        glfwPollEvents();
 
         std::this_thread::sleep_for(std::chrono::milliseconds(6));
     }

@@ -2,14 +2,6 @@
 
 
 
-Player::Player(const float xPos, const float yPos)
-	: Entity(xPos, yPos)
-{
-	
-}
-
-
-
 // Move the player entity about their current coordinates by the specified values
 void Player::move(const float dX, const float dY)
 {

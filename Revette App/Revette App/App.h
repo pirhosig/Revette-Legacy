@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include "Camera.h"
+#include "Entities/Player.h"
 #include "Rendering/Shader.h"
 #include "Rendering/TextureArray.h"
 #include "TileMap.h"
@@ -24,16 +25,18 @@ public:
 private:
 	void cleanup();
 	bool init();
+	void loop();
 	void processInput();
 	void render();
 
 	GLFWwindow* mainWindow;
-	std::unique_ptr<Shader> shader;
+	std::unique_ptr<Shader> chunkShader;
+	std::unique_ptr<Shader> entityShader;
 
-	TextureArray textureAtlas;
-
-	TileMap tilemap;
 
 	Camera camera;
+	Player player;
+	TileMap tilemap;
+	TextureArray textureAtlas;
 };
 

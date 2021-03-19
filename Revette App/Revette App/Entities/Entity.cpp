@@ -2,10 +2,10 @@
 
 
 
-Entity::Entity(const float xPos, const float yPos)
+Entity::Entity()
 {
-	x = xPos;
-	y = yPos;
+	x = 0.0f;
+	y = 0.0f;
 };
 
 

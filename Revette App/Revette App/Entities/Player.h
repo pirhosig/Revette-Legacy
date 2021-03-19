@@ -6,8 +6,6 @@
 class Player : public Entity
 {
 public:
-	Player(const float xPos, const float yPos);
-
 	void move(const float dX, const float dY);
 	void setPosition(const float dX, const float dY);
 
