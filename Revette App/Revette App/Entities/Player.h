@@ -1,6 +1,5 @@
 #pragma once
 #include "Entity.h"
-#include "../Mesh.h"
 #include "../Rendering/Texture.h"
 
 
@@ -18,5 +17,4 @@ public:
 
 private:
 	Texture playerTexture;
-	Mesh playerMesh;
 };

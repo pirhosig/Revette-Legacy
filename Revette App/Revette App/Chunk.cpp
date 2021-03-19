@@ -91,7 +91,7 @@ bool Chunk::draw(std::unique_ptr<Shader>& shader, const glm::mat4& projection, c
 		if (!generateMesh()) return false;
 	}
 
-	bool success = tileMesh->draw_mesh(shader, projection, cameraOffset, static_cast<float>(chunkX * 32), static_cast<float>(chunkY * 32));
+	bool success = tileMesh->drawMesh(shader, projection, cameraOffset, static_cast<float>(chunkX * 32), static_cast<float>(chunkY * 32));
 
 	return success;
 }
