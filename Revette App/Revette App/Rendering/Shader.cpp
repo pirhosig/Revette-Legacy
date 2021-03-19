@@ -87,9 +87,11 @@ void Shader::useShader()
 
 
 
-void Shader::setVec2(const std::string& name, float x, float y) const
+void Shader::setVec2(const std::string& name, const glm::vec2& vec) const
 {
-	glUniform2f(glGetUniformLocation(programID, name.c_str()), x, y);
+	const float xComponent = vec.x;
+	const float yComponent = vec.y;
+	glUniform2f(glGetUniformLocation(programID, name.c_str()), xComponent, yComponent);
 }
 
 

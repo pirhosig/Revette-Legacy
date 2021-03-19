@@ -23,7 +23,7 @@ void ChunkMesh::addSquare(unsigned short x, unsigned short y, unsigned short tex
 	unsigned char textureLowerY = 0;
 	unsigned char textureUpperY = 128;
 	
-	Vertex test_tile_vertices[4] {
+	ArrayVertex test_tile_vertices[4] {
 	tileLowerX, tileLowerY, texture, textureLowerX, textureLowerY,
 	tileUpperX, tileLowerY, texture, textureUpperX, textureLowerY,
 	tileUpperX, tileUpperY, texture, textureUpperX, textureUpperY,
@@ -99,7 +99,7 @@ bool ChunkMesh::drawMesh(std::unique_ptr<Shader>& shader, const glm::mat4& proje
 	model = glm::translate(model, glm::vec3(cameraOffset, 0.0f));
 	const glm::mat4 vertexTranformationMatrix = projection * model;
 
-	shader.get()->setMat4("vertexTransformationMatrix", vertexTranformationMatrix);
+	shader->setMat4("vertexTransformationMatrix", vertexTranformationMatrix);
 
 	// Load Vertex Array Object, which automatically loads configuration of buffers
 	glBindVertexArray(VAO);
@@ -142,9 +142,9 @@ bool ChunkMesh::setupBuffers()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 
 	// Configure the attribute pointers and enable them
-	glVertexAttribPointer(0, 2, GL_UNSIGNED_SHORT, GL_FALSE, sizeof(Vertex), (void*)(0));
-	glVertexAttribIPointer(1, 1, GL_UNSIGNED_SHORT, sizeof(Vertex), (void*)(4));
-	glVertexAttribPointer(2, 2, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(Vertex), (void*)(6));
+	glVertexAttribPointer(0, 2, GL_UNSIGNED_SHORT, GL_FALSE, sizeof(ArrayVertex), (void*)(0));
+	glVertexAttribIPointer(1, 1, GL_UNSIGNED_SHORT, sizeof(ArrayVertex), (void*)(4));
+	glVertexAttribPointer(2, 2, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(ArrayVertex), (void*)(6));
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
@@ -164,7 +164,7 @@ bool ChunkMesh::bufferData()
 {
 	glBindVertexArray(VAO);
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), vertices.data(), GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(ArrayVertex) * vertices.size(), vertices.data(), GL_DYNAMIC_DRAW);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 2 * indices.size(), indices.data(), GL_DYNAMIC_DRAW);
 
 	glBindVertexArray(0);
