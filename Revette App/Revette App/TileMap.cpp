@@ -142,7 +142,9 @@ void TileMap::populateChunks()
 
 bool TileMap::drawChunks(std::unique_ptr<Shader>& shader, TextureArray& tilemap, const glm::mat4& projection, const glm::vec2& cameraOffset)
 {
+	shader->useShader();
 	tilemap.bindTexture();
+	shader->setInt("tileAtlas", 0);
 
 	bool success = true;
 	for (unsigned i = 0; i < TILEMAP_SIZE; ++i)

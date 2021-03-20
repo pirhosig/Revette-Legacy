@@ -138,21 +138,34 @@ void App::processInput()
 void App::render()
 {
     //Rendering commands
+    glEnable(GL_DEPTH_TEST);
     glClearColor(0.29f, 0.643f, 0.85f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     //Calculate the projection matrix
     glm::mat4 projection = glm::ortho(0.0f, 1500.0f / camera.zoomFactor, 1000.0f / camera.zoomFactor, 0.0f, -1.0f, 1.0f);
-
+    
     //Calculate vertex offset due to camera position
     glm::vec2 cameraPosition = camera.getPosition();
     glm::vec2 cameraOffset = cameraPosition * -1.0f;
+    cameraOffset += glm::vec2(10.0f, 10.0f);
+
+    glm::mat4 view = glm::mat4(1.0f);
+    view = glm::translate(view, glm::vec3(cameraOffset, 0.0f));
+
+    glm::mat4 projectionView = projection * view;
 
     // Render the frame
     // Draw the tilemap
-    if (!tilemap.drawChunks(chunkShader, textureAtlas, projection, cameraOffset))
+    if (!tilemap.drawChunks(chunkShader, textureAtlas, projectionView, glm::vec2(0.0f, 0.0f)))
     {
         GlobalAppLog.writeLog("Failed to draw tilemap", LOGMODE::ERROR);
+    }
+
+    // Draw the player
+    if (!player.draw(entityShader, projectionView, glm::vec2(0.0f, 0.0f)))
+    {
+        GlobalAppLog.writeLog("Failed to draw player", LOGMODE::ERROR);
     }
     
     // Swap buffers

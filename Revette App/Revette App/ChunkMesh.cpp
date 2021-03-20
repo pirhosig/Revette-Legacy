@@ -88,7 +88,7 @@ bool ChunkMesh::drawMesh(std::unique_ptr<Shader>& shader, const glm::mat4& proje
 		}
 	}
 	// Set the shader to be used
-	shader.get()->useShader();
+	shader->useShader();
 
 	//Calculate the transformation matrix
 	glm::mat4 model = glm::mat4(1.0f);

@@ -4,19 +4,6 @@
 
 
 
-EntityMesh::EntityMesh(const unsigned xsize, const unsigned ysize)
-{
-	sizeX = xsize;
-	sizeY = ysize;
-
-	hasBuffers = false;
-	hasMesh = false;
-	hasMeshChanged = false;
-	triangleCount = 0;
-}
-
-
-
 // Creates the mesh for the entity
 void EntityMesh::createMesh()
 {
@@ -24,6 +11,8 @@ void EntityMesh::createMesh()
 	// Everything inside here should change at some point
 	// I cannot emphasise enough just how temporary this is
 
+	clearMesh();
+	hasMesh = true;
 	hasMeshChanged = true;
 
 	unsigned short TEMP_SQUARE[6]{
@@ -34,10 +23,12 @@ void EntityMesh::createMesh()
 		indicies.push_back(TEMP_SQUARE[i]);
 	}
 
-	vertices.push_back({ 0, 0, 0, 0 });
-	vertices.push_back({ 1, 0, 1, 0 });
-	vertices.push_back({ 1, 1, 1, 1 });
-	vertices.push_back({ 0, 1, 0, 1 });
+	vertices.push_back({ 0, 0, 0,   0 });
+	vertices.push_back({ 1, 0, 255, 0 });
+	vertices.push_back({ 1, 1, 255, 255 });
+	vertices.push_back({ 0, 1, 0,   255 });
+
+	triangleCount += 2;
 }
 
 
@@ -52,14 +43,11 @@ bool EntityMesh::draw(std::unique_ptr<Shader>& shader, const glm::mat4& projecti
 		if (!bufferData()) return false;
 	}
 
-	// Set the shader to be used as the current one
-	shader.get()->useShader();
-
 	//Calculate the transformation matrix
 	glm::mat4 model = glm::mat4(1.0f);
 	//Translate vertices to entity position
-	const glm::vec2 chunkOffset(entityX, entityY);
-	model = glm::translate(model, glm::vec3(chunkOffset, 0.0f));
+	const glm::vec2 position(entityX, entityY);
+	model = glm::translate(model, glm::vec3(position, 0.0f));
 	//Translate vertices relative to the camera
 	model = glm::translate(model, glm::vec3(cameraOffset, 0.0f));
 	const glm::mat4 vertexTranformationMatrix = projection * model;
@@ -104,6 +92,15 @@ bool EntityMesh::bufferData()
 	if (!hasMesh) hasMesh = true;
 
 	return true;
+}
+
+
+
+void EntityMesh::clearMesh()
+{
+	indicies.clear();
+	vertices.clear();
+	triangleCount = 0;
 }
 
 

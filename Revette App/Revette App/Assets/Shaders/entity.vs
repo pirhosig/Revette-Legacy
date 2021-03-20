@@ -9,8 +9,8 @@ uniform vec2 scaleVector;
 
 void main()
 {
-    vec2 scaledPosition = dot(aPos, scaleVector)
-    vec4 actualPosition = vec4(scaledPosition, 0.0f, 1.0f);
+    vec2 scaledPosition = aPos * scaleVector;
+    vec4 actualPosition = vec4(scaledPosition, 0.1f, 1.0f);
     gl_Position = vertexTransformationMatrix * actualPosition;
     TexCoord = vec2(aTexCoord / 255.0f);
 }

@@ -92,5 +92,6 @@ bool TextureArray::loadTexture(const char* texturePath)
 // Set the texture as the currently bound texture object
 void TextureArray::bindTexture()
 {
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D_ARRAY, textureID);
 }
