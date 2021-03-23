@@ -82,6 +82,7 @@ bool App::init()
     }
     
     player.setPosition(0.0f, 100.0f);
+    player.loadTexture("./Assets/Textures/player.png");
 
     if (!tilemap.loadChunks()) return false;
     
