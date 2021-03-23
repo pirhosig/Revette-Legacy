@@ -143,12 +143,12 @@ void App::render()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     //Calculate the projection matrix
-    glm::mat4 projection = glm::ortho(0.0f, 1500.0f / camera.zoomFactor, 1000.0f / camera.zoomFactor, 0.0f, -1.0f, 1.0f);
+    const float zoom = camera.zoomFactor;
+    glm::mat4 projection = glm::ortho(-750.0f / zoom, 750.0f / zoom, 500.0f / zoom, -500.0f / zoom, -1.0f, 1.0f);
     
     //Calculate vertex offset due to camera position
     glm::vec2 cameraPosition = camera.getPosition();
     glm::vec2 cameraOffset = cameraPosition * -1.0f;
-    cameraOffset += glm::vec2(10.0f, 10.0f);
 
     glm::mat4 view = glm::mat4(1.0f);
     view = glm::translate(view, glm::vec3(cameraOffset, 0.0f));
