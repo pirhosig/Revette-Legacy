@@ -23,10 +23,10 @@ void EntityMesh::createMesh()
 		indicies.push_back(TEMP_SQUARE[i]);
 	}
 
-	vertices.push_back({ 0, 0, 0,   0 });
-	vertices.push_back({ 1, 0, 255, 0 });
-	vertices.push_back({ 1, 1, 255, 255 });
-	vertices.push_back({ 0, 1, 0,   255 });
+	vertices.push_back({ -1, -1, 0,   0 });
+	vertices.push_back({  1, -1, 255, 0 });
+	vertices.push_back({  1,  0, 255, 255 });
+	vertices.push_back({ -1,  0, 0,   255 });
 
 	triangleCount += 2;
 }
@@ -82,8 +82,8 @@ bool EntityMesh::bufferData()
 	glBindVertexArray(VAO);
 
 	// Buffer data
-	glBufferData(GL_ARRAY_BUFFER,         sizeof(Vertex)   * vertices.size(), vertices.data(), GL_DYNAMIC_DRAW);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint16_t) * indicies.size(), indicies.data(), GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER,         sizeof(Vertex)  * vertices.size(), vertices.data(), GL_DYNAMIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int16_t) * indicies.size(), indicies.data(), GL_DYNAMIC_DRAW);
 
 	//Unbind VAO
 	glBindVertexArray(0);
@@ -127,8 +127,8 @@ bool EntityMesh::setupBuffers()
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
 	// Configure the vertex attributes so that the buffer data is compatible with the shaders
-	glVertexAttribPointer(0, 2, GL_UNSIGNED_SHORT, GL_FALSE, sizeof(Vertex), (void*)(0));
-	glVertexAttribPointer(1, 2, GL_UNSIGNED_BYTE,  GL_FALSE, sizeof(Vertex), (void*)(4));
+	glVertexAttribPointer(0, 2, GL_SHORT        , GL_FALSE, sizeof(Vertex), (void*)(0));
+	glVertexAttribPointer(1, 2, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(Vertex), (void*)(4));
 	// Enable the vertex attributes
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);

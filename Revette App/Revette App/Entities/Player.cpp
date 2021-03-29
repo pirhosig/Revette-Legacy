@@ -4,7 +4,7 @@
 
 Player::Player()
 {
-	playerMesh.sizeX = 1.0f;
+	playerMesh.sizeX = 0.5f;
 	playerMesh.sizeY = 2.0f;
 
 	loadModel();
