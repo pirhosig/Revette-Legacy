@@ -25,14 +25,17 @@ public:
 private:
 	void cleanup();
 	bool init();
+	bool loadTextures();
+
 	void loop();
-	void processInput();
+	void processInput(const double frameTime);
 	void render();
 
 	GLFWwindow* mainWindow;
 	std::unique_ptr<Shader> chunkShader;
 	std::unique_ptr<Shader> entityShader;
 
+	unsigned int frameTime;
 
 	Camera camera;
 	Player player;

@@ -2,6 +2,8 @@
 
 #include <algorithm>
 
+#include "Physics/Physics.h"
+
 
 
 const bool TREE_LEAVES[5][5] = {
@@ -25,6 +27,20 @@ TileMap::TileMap()
 			chunks.emplace( std::make_pair(chunk_key, std::make_unique<Chunk>(i, j, terrainGenerator)) );
 		}
 	}
+}
+
+
+
+// Returns true if no collision would occur at the specified point, returns false if it collides
+bool TileMap::collisionQuery(double x, double y)
+{
+	const auto tileX = static_cast<unsigned int>(x);
+	const auto tileY = static_cast<unsigned int>(y);
+	
+	const Tile tile = getTile(tileX, tileY);
+
+	if (TilePhysics[tile.type].isSolid) return true;
+	else return false;
 }
 
 

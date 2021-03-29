@@ -26,6 +26,7 @@ class TileMap
 public:
 	TileMap();
 
+	bool collisionQuery(double x, double y);
 	std::unique_ptr<Chunk>& getChunk(unsigned x, unsigned y);
 	Tile getTile(unsigned tileX, unsigned tileY);
 	void setTile(unsigned tileX, unsigned tileY, Tile tileType);

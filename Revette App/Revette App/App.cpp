@@ -1,5 +1,6 @@
-#include <thread>
 #include <chrono>
+#include <fstream>
+#include <thread>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -13,6 +14,9 @@ App::App()
 {
     mainWindow = nullptr;
     camera = Camera();
+
+    // Set default fps to 60
+    frameTime = 16666;
 }
 
 
@@ -42,8 +46,7 @@ bool App::init()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-
-    // Create a window object
+    // Create a window object and bind it as the current window
     GlobalAppLog.writeLog("Creating window", LOGMODE::INFO);
     mainWindow = glfwCreateWindow(1500, 1000, "Revette", NULL, NULL);
     if (mainWindow == NULL) {
@@ -52,10 +55,8 @@ bool App::init()
         glfwTerminate();
         return false;
     }
-
     glfwMakeContextCurrent(mainWindow);
     glfwSetWindowUserPointer(mainWindow, this);
-
 
     // Load opengl function pointers
     GlobalAppLog.writeLog("Loading opengl function pointers", LOGMODE::INFO);
@@ -64,28 +65,55 @@ bool App::init()
         return false;
     }
 
+    // Load settings from file
+    std::ifstream settingFile;
+    settingFile.open("./Assets/Settings.txt");
+    if (!settingFile.is_open())
+    {
+        GlobalAppLog.writeLog("Failed to load settings", LOGMODE::ERROR);
+        return false;
+    }
+    // Extract settings
+    unsigned int frameRate;
+    settingFile >> frameRate;
+    frameTime = 1000 / frameRate;
+    //Close file object
+    settingFile.close();
 
     // Set the callback functions for various input events
     glfwSetScrollCallback(mainWindow, App::scrollwheelCallbackWrapper);
-
+    // Set the viewport to properly scale rendered scene to screen size
     glViewport(0, 0, 1500, 1000);
 
     // Load shader programs
     chunkShader  = std::make_unique<Shader>("./Assets/Shaders/chunk.vs",  "./Assets/Shaders/chunk.fs" );
     entityShader = std::make_unique<Shader>("./Assets/Shaders/entity.vs", "./Assets/Shaders/entity.fs");
+    //Load textures
+    if (!loadTextures()) return false;
 
+    player.setPosition(50.0f, 100.0f);
+
+    // Load and generate chunks
+    if (!tilemap.loadChunks()) return false;
+
+    return true;
+}
+
+
+
+// Loads all textures from files
+bool App::loadTextures()
+{
     // Load texture atlas
     if (!textureAtlas.loadTexture("./Assets/Textures/texture_atlas.png"))
     {
         GlobalAppLog.writeLog("Failed to load texture atlas", LOGMODE::ERROR);
         return false;
     }
-    
-    player.setPosition(0.0f, 100.0f);
+
+    // Load player texture
     player.loadTexture("./Assets/Textures/player.png");
 
-    if (!tilemap.loadChunks()) return false;
-    
     return true;
 }
 
@@ -101,7 +129,7 @@ void App::loop()
 
 
 
-void App::processInput()
+void App::processInput(const double frameTime)
 {
     // Call glfw callbacks
     glfwPollEvents();
@@ -112,25 +140,41 @@ void App::processInput()
         glfwSetWindowShouldClose(mainWindow, true);
     }
     
-    const float cameraSpeed = 1.5f;
+
+    // Use change in time to control speed, so that the game runs independant of frame rate
+    const float cameraSpeed = 30.0f * static_cast<float>(frameTime);
+
 
     // Player movement
+    glm::vec2 playerMovement(0.0f, 0.0f);
+    bool playerHasMoved = false;
+
     if (glfwGetKey(mainWindow, GLFW_KEY_W) == GLFW_PRESS)
     {
-        player.move(0.0f, -cameraSpeed);
+        playerMovement.y += -cameraSpeed;
+        playerHasMoved = true;
     }
     if (glfwGetKey(mainWindow, GLFW_KEY_S) == GLFW_PRESS)
     {
-        player.move(0.0f, cameraSpeed);
+        playerMovement.y += cameraSpeed;
+        playerHasMoved = true;
     }
     if (glfwGetKey(mainWindow, GLFW_KEY_A) == GLFW_PRESS)
     {
-        player.move(-cameraSpeed, 0.0f);
+        playerMovement.x += -cameraSpeed;
+        playerHasMoved = true;
     }
     if (glfwGetKey(mainWindow, GLFW_KEY_D) == GLFW_PRESS)
     {
-        player.move(cameraSpeed, 0.0f);
+        playerMovement.x += cameraSpeed;
+        playerHasMoved = true;
     }
+
+    if (playerHasMoved)
+    {
+        player.move(tilemap, playerMovement.x, playerMovement.y);
+    }
+
 }
 
 
@@ -182,15 +226,28 @@ int App::run()
         GlobalAppLog.writeLog("Initialization failed", LOGMODE::FATAL);
         return -1;
     }
+
+    // Measure time in between frames
+    double lastFrameTime = glfwGetTime();
+    
     while (!glfwWindowShouldClose(mainWindow)) {
+        // Calculate when the next frame should render
+        const auto frameBegin = std::chrono::steady_clock::now();
+        const auto frameEnd = frameBegin + std::chrono::milliseconds(frameTime);
+
+        // Calculate time since last frame
+        double time = glfwGetTime();
+        double deltaTime = time - lastFrameTime;
+        lastFrameTime = time;
+
         // Get input
-        processInput();
+        processInput(deltaTime);
         // Process events
         loop();
         // Render frame
         render();
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(6));
+        std::this_thread::sleep_until(frameEnd);
     }
 
     cleanup();
