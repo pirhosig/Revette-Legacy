@@ -2,18 +2,16 @@
 
 #include <algorithm>
 
+#include "Logging/GlobalAppLog.h"
 #include "Physics/Physics.h"
 
 
 
-const bool TREE_LEAVES[5][5] = {
-	false, true,  true,  true,  false,
-	true,  true,  true,  true,  true,
-	true,  true,  true,  true,  true,
-	true,  true,  true,  true,  true,
-	false, true,  true,  true, false
-};
-
+// Returns the key required to access the chunk with chunk coordinates (chunkX, chunkY) in the chunk map
+unsigned int getChunkKey(unsigned int chunkX, unsigned int chunkY)
+{
+	return chunkX + (chunkY << TILEMAP_KEY_SHIFT);
+}
 
 
 
@@ -23,8 +21,8 @@ TileMap::TileMap()
 	{
 		for (unsigned j = 0; j < TILEMAP_SIZE; ++j)
 		{
-			unsigned chunk_key = i + (j << TILEMAP_KEY_SHIFT);
-			chunks.emplace( std::make_pair(chunk_key, std::make_unique<Chunk>(i, j, terrainGenerator)) );
+			unsigned int chunk_key = getChunkKey(i, j);
+			chunks.emplace( std::make_pair(chunk_key, std::make_unique<Chunk>(i, j, terrainGenerator)));
 		}
 	}
 }
@@ -47,7 +45,7 @@ bool TileMap::collisionQuery(double x, double y)
 
 std::unique_ptr<Chunk>& TileMap::getChunk(unsigned x, unsigned y)
 {
-	unsigned chunk_key = x + (y << TILEMAP_KEY_SHIFT);
+	unsigned int chunk_key = getChunkKey(x, y);
 	std::unique_ptr<Chunk>& chunkReference = chunks[chunk_key];
 	return chunkReference;
 }
@@ -58,25 +56,32 @@ Tile TileMap::getTile(unsigned tileX, unsigned tileY)
 {
 	unsigned chunkX = tileX / CHUNK_SIZE;
 	unsigned chunkY = tileY / CHUNK_SIZE;
+	if (chunkX >= TILEMAP_SIZE || chunkY >= TILEMAP_SIZE) return { 0, 0 };
+	chunkReference chunk = getChunk(chunkX, chunkY);
+
 	unsigned localX = tileX - (chunkX * CHUNK_SIZE);
 	unsigned localY = tileY - (chunkY * CHUNK_SIZE);
-	chunkReference chunk = getChunk(chunkX, chunkY);
-	Tile tileType = chunk->getTile(localX, localY);
+	Tile tileType = chunk->getChunkTile(localX, localY);
 	return tileType;
 }
 
 
 
-void TileMap::setTile(unsigned tileX, unsigned tileY, Tile tileType)
+void TileMap::setTile(unsigned int tileX, unsigned int tileY, Tile tileType)
 {
-	unsigned chunkX = tileX / CHUNK_SIZE;
-	unsigned chunkY = tileY / CHUNK_SIZE;
-	if (chunkX < 0 || chunkY < 0 || chunkX >= TILEMAP_SIZE || chunkY >= TILEMAP_SIZE) return;
-	unsigned localX = tileX - (chunkX * CHUNK_SIZE);
-	unsigned localY = tileY - (chunkY * CHUNK_SIZE);
-
+	unsigned int chunkX = tileX / CHUNK_SIZE;
+	unsigned int chunkY = tileY / CHUNK_SIZE;
+	if ((chunkX >= TILEMAP_SIZE) || (chunkY >= TILEMAP_SIZE))
+	{
+		GlobalAppLog.writeLog("Invalid global tile placement.", LOGMODE::INFO);
+		return;
+	}
 	chunkReference chunk = getChunk(chunkX, chunkY);
-	chunk->setTile(localX, localY, tileType);
+
+	unsigned int localX = tileX - (chunkX * CHUNK_SIZE);
+	unsigned int localY = tileY - (chunkY * CHUNK_SIZE);
+
+	chunk->setChunkTile(localX, localY, tileType);
 }
 
 
@@ -107,11 +112,11 @@ void TileMap::populateChunks()
 		const float xFloat = static_cast<float>(x);
 		// Get height level
 		const float heightOffsetNoiseValue = terrainGenerator->getHeightNoise(xFloat);
-		const unsigned heightOffsetValue = static_cast<unsigned>(heightOffsetNoiseValue * 10.0f);
+		const int heightOffsetValue = static_cast<int>(heightOffsetNoiseValue * 10.0f);
 		const unsigned groundHeight = GROUND_LEVEL - heightOffsetValue;
 
-		// Make top block grass
-		setTile(x, groundHeight, { 2, 0 });
+		// Make top block grass if it is a dirt block
+		if (getTile(x, groundHeight).type == 1) setTile(x, groundHeight, { 2, 0 });
 
 		// Get foliage noise
 		const float foliageNoise = terrainGenerator->getFoliageNoise(xFloat);
@@ -134,13 +139,15 @@ void TileMap::populateChunks()
 			unsigned leafGridX = x;
 			unsigned leafGridY = treeTopY;
 
-			for (int lX = -2; lX < 3; ++lX)
+			int maxX = static_cast<int>(terrainGenerator->treeLeaves.sizeX) - terrainGenerator->treeLeaves.xOffset;
+			int maxY = static_cast<int>(terrainGenerator->treeLeaves.sizeY) - terrainGenerator->treeLeaves.yOffset;
+			for (int lX = -terrainGenerator->treeLeaves.xOffset; lX < maxX; ++lX)
 			{
-				for (int lY = -2; lY < 3; ++lY)
+				for (int lY = -terrainGenerator->treeLeaves.yOffset; lY < maxY; ++lY)
 				{
 					Tile oldTile = getTile(leafGridX + lX, leafGridY + lY);
 					Tile newTile = terrainGenerator->treeLeaves.getTile(lX, lY, oldTile);
-					if (newTile.type != oldTile.type || newTile.extraValue != oldTile.extraValue)
+					if ((newTile.type != oldTile.type) || (newTile.extraValue != oldTile.extraValue))
 					{
 						setTile(leafGridX + lX, leafGridY + lY, newTile);
 					}

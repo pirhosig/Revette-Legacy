@@ -1,6 +1,7 @@
 #include "Entity.h"
 
 #include <algorithm>
+#include <math.h>
 
 #include <glm/glm.hpp>
 
@@ -62,13 +63,8 @@ void Entity::move(TileMap& tileMap, double dX, double dY)
 		}
 	}
 
-	if (collided)
-	{
-		x = static_cast<float>(position.x);
-		y = static_cast<float>(position.y);
-	}
-	// Move to final coordinates if no collisions occured
-	else
+	// Try to move to final coordinates
+	if (glm::length(movementVector) > 0)
 	{
 		glm::dvec2 newPosition = position + movementVector;
 		bool canMove = true;
@@ -85,10 +81,11 @@ void Entity::move(TileMap& tileMap, double dX, double dY)
 		if (canMove)
 		{
 			position = newPosition;
-			x = static_cast<float>(position.x);
-			y = static_cast<float>(position.y);
 		}
 	}
+
+	x = static_cast<float>(position.x);
+	y = static_cast<float>(position.y);
 }
 
 

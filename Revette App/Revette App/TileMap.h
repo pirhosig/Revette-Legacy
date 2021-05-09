@@ -8,9 +8,9 @@
 #include "Rendering/TextureArray.h"
 #include "World Gen/WorldGenerator.h"
 
-constexpr unsigned TILEMAP_SIZE = 16;
-constexpr unsigned TILEMAP_KEY_SHIFT = 5;
-constexpr unsigned MAX_BLOCK = TILEMAP_SIZE * CHUNK_SIZE;
+constexpr unsigned int TILEMAP_SIZE = 16U;
+constexpr unsigned int TILEMAP_KEY_SHIFT = 5U;
+constexpr unsigned int MAX_BLOCK = TILEMAP_SIZE * CHUNK_SIZE;
 
 typedef std::unique_ptr<Chunk>& chunkReference;
 
@@ -29,7 +29,7 @@ public:
 	bool collisionQuery(double x, double y);
 	std::unique_ptr<Chunk>& getChunk(unsigned x, unsigned y);
 	Tile getTile(unsigned tileX, unsigned tileY);
-	void setTile(unsigned tileX, unsigned tileY, Tile tileType);
+	void setTile(unsigned int tileX, unsigned int tileY, Tile tileType);
 
 	bool loadChunks();
 	void populateChunks();

@@ -2,8 +2,8 @@
 
 struct Tile
 {
-	int type;
-	int extraValue;
+	int type = 0;
+	int extraValue = 0;
 
 	friend bool operator==(const Tile& a, const Tile& b)
 	{

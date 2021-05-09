@@ -7,6 +7,8 @@ class WorldGenerator
 {
 public:
 	WorldGenerator();
+	void setSeed(const int seedValue);
+
 	float getCaveNoise(float xValue, float yValue);
 	float getFoliageNoise(float xValue);
 	float getSecondaryFoliageNoise(float xValue);
@@ -20,6 +22,6 @@ private:
 	FastNoise noiseSecondaryFoliage;
 	FastNoise noiseHeight;
 
-	int seed = 421;
+	int seed;
 };
 

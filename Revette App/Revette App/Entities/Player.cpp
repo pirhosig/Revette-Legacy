@@ -4,8 +4,8 @@
 
 Player::Player()
 {
-	playerMesh.sizeX = 0.5f;
-	playerMesh.sizeY = 2.0f;
+	playerMesh.sizeX = 0.49f;
+	playerMesh.sizeY = 1.98f;
 
 	loadModel();
 }
@@ -52,10 +52,10 @@ bool Player::loadModel()
 {
 	coordinate* modelVertices = new coordinate[4];
 
-	modelVertices[0] = { -0.5f, -2.0f };
-	modelVertices[1] = {  0.5f, -2.0f };
-	modelVertices[2] = { -0.5f,  0.0f };
-	modelVertices[3] = {  0.5f,  0.0f };
+	modelVertices[0] = { -0.49f, -1.99f };
+	modelVertices[1] = {  0.49f, -1.99f };
+	modelVertices[2] = { -0.49f,  0.01f };
+	modelVertices[3] = {  0.49f,  0.01f };
 
 	setCollisionModel(modelVertices, 4);
 

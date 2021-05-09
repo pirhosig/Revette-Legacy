@@ -1,5 +1,6 @@
 #include <chrono>
 #include <fstream>
+#include <math.h>
 #include <thread>
 
 #include <glm/glm.hpp>
@@ -16,7 +17,7 @@ App::App()
     camera = Camera();
 
     // Set default fps to 60
-    frameTime = 16666;
+    frameTime = 16;
 }
 
 
@@ -77,6 +78,9 @@ bool App::init()
     unsigned int frameRate;
     settingFile >> frameRate;
     frameTime = 1000 / frameRate;
+    int worldSeed;
+    settingFile >> worldSeed;
+    tilemap.terrainGenerator->setSeed(worldSeed);
     //Close file object
     settingFile.close();
 
@@ -175,6 +179,19 @@ void App::processInput(const double frameTime)
         player.move(tilemap, playerMovement.x, playerMovement.y);
     }
 
+    // World interaction
+    if (glfwGetMouseButton(mainWindow, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+    {
+        double mouseX, mouseY;
+        glfwGetCursorPos(mainWindow, &mouseX, &mouseY);
+
+        unsigned int tx = static_cast<unsigned int>(player.x);
+        unsigned int ty = static_cast<unsigned int>(player.y);
+        GlobalAppLog.writeLog(std::to_string(tx) + " " + std::to_string(ty), LOGMODE::INFO);
+        GlobalAppLog.writeLog("Tile is I: " + std::to_string(tilemap.getTile(tx, ty).type), LOGMODE::INFO);
+        tilemap.setTile(tx, ty, { 0, 0 });
+        GlobalAppLog.writeLog("Tile is P: " + std::to_string(tilemap.getTile(tx, ty).type), LOGMODE::INFO);
+    }
 }
 
 
@@ -229,7 +246,7 @@ int App::run()
 
     // Measure time in between frames
     double lastFrameTime = glfwGetTime();
-    
+
     while (!glfwWindowShouldClose(mainWindow)) {
         // Calculate when the next frame should render
         const auto frameBegin = std::chrono::steady_clock::now();
@@ -269,5 +286,9 @@ void App::scrollwheelCallbackWrapper(GLFWwindow* window, double xOffset, double 
 // Callback function for mouse scrolling
 void App::scrollwheelCallback(double yOffset)
 {
-    camera.zoomFactor += static_cast<float>(yOffset) / 2.0f;
+    float zoom = camera.zoomFactor;
+    zoom += static_cast<float>(yOffset) / 2.0f;
+    if (zoom < 15.0f) zoom = 15.0f;
+    else if (zoom > 50.0f) zoom = 50.0f;
+    camera.zoomFactor = zoom;
 }

@@ -56,7 +56,7 @@ bool StructureData::loadDataFromFile(const char* filePath)
 
 	// Create underlying data containers based on the size described in the metadata
 	tilePallate = std::make_unique<TilePlacementInfo[]>(pallateSize);
-	dataArray = std::make_unique<unsigned[]>(x * y);
+	dataArray = std::make_unique<unsigned[]>(static_cast<long long int>(x) * static_cast<long long int>(y));
 
 	// Load tile pallate
 	for (unsigned i = 0; i < pallateSize; ++i)
@@ -175,10 +175,14 @@ Tile StructureData::getTile(const int x, const int y, const Tile currentTile)
 		else returnTile = currentTile;
 		break;
 	}
+	case (TilePlaceMode::SKIP):
+	{
+		returnTile = currentTile;
+		break;
+	}
 	default:
 		returnTile = {0, 0};
 		break;
-
 	}
 
 	return returnTile;

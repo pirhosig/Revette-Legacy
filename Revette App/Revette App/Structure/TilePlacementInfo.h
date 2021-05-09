@@ -8,7 +8,8 @@
 enum class TilePlaceMode
 {
 	SET,
-	REPLACE
+	REPLACE,
+	SKIP
 };
 
 

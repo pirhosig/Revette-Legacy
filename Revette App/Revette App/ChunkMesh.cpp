@@ -8,6 +8,9 @@ unsigned short test_tile_indices[6]{
 	0, 1, 2, 2, 3, 0
 };
 
+constexpr unsigned CHUNK_KEY_SHIFT{ 5 };
+
+
 
 
 // Adds a textured tile square to the mesh
@@ -24,10 +27,10 @@ void ChunkMesh::addSquare(unsigned short x, unsigned short y, unsigned short tex
 	unsigned char textureUpperY = 128;
 	
 	ArrayVertex test_tile_vertices[4] {
-	tileLowerX, tileLowerY, texture, textureLowerX, textureLowerY,
-	tileUpperX, tileLowerY, texture, textureUpperX, textureLowerY,
-	tileUpperX, tileUpperY, texture, textureUpperX, textureUpperY,
-	tileLowerX, tileUpperY, texture, textureLowerX, textureUpperY
+		tileLowerX, tileLowerY, texture, textureLowerX, textureLowerY,
+		tileUpperX, tileLowerY, texture, textureUpperX, textureLowerY,
+		tileUpperX, tileUpperY, texture, textureUpperX, textureUpperY,
+		tileLowerX, tileUpperY, texture, textureLowerX, textureUpperY
 	};
 
 
@@ -52,18 +55,20 @@ void ChunkMesh::addSquare(unsigned short x, unsigned short y, unsigned short tex
 
 bool ChunkMesh::createMesh(const std::unique_ptr<Tile[]>& tiles)
 {
+	isBuffered = false;
 	clearMesh();
 
-	for (unsigned x = 0; x < 32; ++x)
+	for (unsigned int x = 0; x < 32; ++x)
 	{
-		for (unsigned y = 0; y < 32; ++y)
+		for (unsigned int y = 0; y < 32; ++y)
 		{
-			unsigned tile_location = (x + (y << 5));
+			unsigned int tile_location = (x + (y << CHUNK_KEY_SHIFT));
 			int type = tiles[tile_location].type;
 			if (type > 0)
 			{
-				addSquare(x, y, type - 1);
-			}			
+				unsigned int textureType = static_cast<unsigned int>(type - 1);
+				addSquare(x, y, textureType);
+			}
 		}
 	}
 	return true;

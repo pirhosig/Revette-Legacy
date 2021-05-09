@@ -12,10 +12,7 @@ WorldGenerator::WorldGenerator()
 	noiseHeight.SetNoiseType(FastNoise::SimplexFractal);
 
 	// Set seed values
-	noiseCave.SetSeed(seed);
-	noiseFoliage.SetSeed(seed);
-	noiseSecondaryFoliage.SetSeed(seed + 0x12);
-	noiseHeight.SetSeed(seed + 0xAF);
+	setSeed(420);
 
 	//Set noise octaves
 	noiseCave.SetFractalOctaves(4);
@@ -24,6 +21,18 @@ WorldGenerator::WorldGenerator()
 	{
 		GlobalAppLog.writeLog("Error loading trees", LOGMODE::ERROR);
 	}
+}
+
+
+
+// Sets the seed values for all noise functions
+void WorldGenerator::setSeed(const int seedValue)
+{
+	seed = seedValue;
+	noiseCave.SetSeed(seedValue);
+	noiseFoliage.SetSeed(seedValue);
+	noiseSecondaryFoliage.SetSeed(seedValue + 0x12);
+	noiseHeight.SetSeed(seedValue + 0xAF);
 }
 
 

@@ -1,15 +1,24 @@
 #include "Chunk.h"
 #include <algorithm>
+#include "Logging/GlobalAppLog.h"
+
+
+// Converts x and y coordinates within a chunk into tile location within the data array
+unsigned int getTileArrayLocation(unsigned int xLoc, unsigned int yLoc)
+{
+	return xLoc + (yLoc << CHUNK_KEY_SHIFT);
+}
+
+
 
 
 Chunk::Chunk(unsigned x, unsigned y, std::shared_ptr<WorldGenerator>& generator)
+	: terrainGenerator(generator),
+	tileData(std::make_unique<Tile[]>(CHUNK_SIZE* CHUNK_SIZE)),
+	tileMesh(std::make_unique<ChunkMesh>())
 {
 	chunkX = x;
 	chunkY = y;
-	tileData = std::make_unique<Tile[]>(CHUNK_SIZE * CHUNK_SIZE);
-	tileMesh = std::make_unique<ChunkMesh>();
-
-	terrainGenerator = generator;
 }
 
 
@@ -26,11 +35,11 @@ bool Chunk::generateChunk()
 		unsigned absoluteX = chunkXOffset + x;
 		
 		float heightOffsetNoiseValue = terrainGenerator->getHeightNoise(static_cast<float>(absoluteX));
-		unsigned heightOffsetValue = static_cast<unsigned>(heightOffsetNoiseValue * 10.0f);
+		int heightOffsetValue = static_cast<int>(heightOffsetNoiseValue * 10.0f);
 		unsigned groundHeight = GROUND_LEVEL - heightOffsetValue;
 
 		// Proceed to next column if the entire column of the chunk is above the height level
-		if ((chunkYOffset + CHUNK_SIZE - 1) <= groundHeight) continue;
+		if ((chunkYOffset + CHUNK_SIZE) <= groundHeight) continue;
 		
 		unsigned terrainTopHeight = static_cast<unsigned>(std::max(0, (static_cast<int>(groundHeight) - static_cast<int>(chunkYOffset))));
 
@@ -39,9 +48,13 @@ bool Chunk::generateChunk()
 			unsigned absoluteY = chunkYOffset + y;
 			float caveNoise = terrainGenerator->getCaveNoise(static_cast<float>(absoluteX), static_cast<float>(absoluteY));
 
-			unsigned tileArrayLocation = x + (y << CHUNK_KEY_SHIFT);
+			unsigned tileArrayLocation = getTileArrayLocation(x, y);
 
-			if (absoluteY < groundHeight + 5) tileData[tileArrayLocation] = { 1, 0 };
+			if (absoluteY < groundHeight + 5)
+			{
+				if (caveNoise > 0.8f) tileData[tileArrayLocation] = { 8, 0 };
+				else tileData[tileArrayLocation] = { 1, 0 };
+			}
 			else
 			{
 				if (caveNoise > 0.8f)
@@ -60,26 +73,27 @@ bool Chunk::generateChunk()
 
 
 // Gets the tile at location (tileX, tileY)
-Tile Chunk::getTile(unsigned tileX, unsigned tileY)
+Tile Chunk::getChunkTile(unsigned tileX, unsigned tileY)
 {
-	unsigned tileLocation = tileX + (tileY << 5);
+	unsigned tileLocation = getTileArrayLocation(tileX, tileY);
 	return tileData[tileLocation];
 }
 
 
 
 // Sets the tile at location (tileX, tileY) to tile
-bool Chunk::setTile(unsigned tileX, unsigned tileY, Tile tile)
+void Chunk::setChunkTile(unsigned tileX, unsigned tileY, Tile tile)
 {
-	if (tileX >= CHUNK_SIZE || 0 > tileX) return false;
-	if (tileY >= CHUNK_SIZE || 0 > tileY) return false;
+	if ((tileX >= CHUNK_SIZE) || (tileY >= CHUNK_SIZE))
+	{
+		GlobalAppLog.writeLog("Invalid local tile placement.", LOGMODE::INFO);
+		return;
+	}
 
-	unsigned tileLocation = tileX + (tileY << 5);
+	unsigned tileLocation = getTileArrayLocation(tileX, tileY);
 	tileData[tileLocation] = tile;
 
 	dataHasChanged = true;
-
-	return true;
 }
 
 
@@ -100,7 +114,7 @@ bool Chunk::draw(std::unique_ptr<Shader>& shader, const glm::mat4& projection, c
 
 bool Chunk::generateMesh()
 {
-	bool success = tileMesh.get()->createMesh(tileData);
+	bool success = tileMesh->createMesh(tileData);
 
 	dataHasChanged = false;
 
