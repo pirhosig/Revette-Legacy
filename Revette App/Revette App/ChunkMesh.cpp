@@ -55,7 +55,6 @@ void ChunkMesh::addSquare(unsigned short x, unsigned short y, unsigned short tex
 
 bool ChunkMesh::createMesh(const std::unique_ptr<Tile[]>& tiles)
 {
-	isBuffered = false;
 	clearMesh();
 
 	for (unsigned int x = 0; x < 32; ++x)
@@ -71,6 +70,9 @@ bool ChunkMesh::createMesh(const std::unique_ptr<Tile[]>& tiles)
 			}
 		}
 	}
+
+	meshHasChanged = true;
+
 	return true;
 }
 
@@ -167,12 +169,13 @@ bool ChunkMesh::setupBuffers()
 // Uploads the mesh data to the buffers on the GPU
 bool ChunkMesh::bufferData()
 {
-	glBindVertexArray(VAO);
-
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(ArrayVertex) * vertices.size(), vertices.data(), GL_DYNAMIC_DRAW);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 2 * indices.size(), indices.data(), GL_DYNAMIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	glBindVertexArray(0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * indices.size(), indices.data(), GL_DYNAMIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	meshHasChanged = false;
 

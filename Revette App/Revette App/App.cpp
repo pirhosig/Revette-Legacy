@@ -49,7 +49,7 @@ bool App::init()
 
     // Create a window object and bind it as the current window
     GlobalAppLog.writeLog("Creating window", LOGMODE::INFO);
-    mainWindow = glfwCreateWindow(1500, 1000, "Revette", NULL, NULL);
+    mainWindow = glfwCreateWindow(1920, 1080, "Revette", glfwGetPrimaryMonitor(), NULL);
     if (mainWindow == NULL) {
 
         GlobalAppLog.writeLog("Error creating window", LOGMODE::FATAL);
@@ -87,7 +87,7 @@ bool App::init()
     // Set the callback functions for various input events
     glfwSetScrollCallback(mainWindow, App::scrollwheelCallbackWrapper);
     // Set the viewport to properly scale rendered scene to screen size
-    glViewport(0, 0, 1500, 1000);
+    glViewport(0, 0, 1920, 1080);
 
     // Load shader programs
     chunkShader  = std::make_unique<Shader>("./Assets/Shaders/chunk.vs",  "./Assets/Shaders/chunk.fs" );
@@ -184,13 +184,11 @@ void App::processInput(const double frameTime)
     {
         double mouseX, mouseY;
         glfwGetCursorPos(mainWindow, &mouseX, &mouseY);
+        GlobalAppLog.writeLog("Click: " + std::to_string(mouseX) + " " + std::to_string(mouseY), LOGMODE::INFO);
 
         unsigned int tx = static_cast<unsigned int>(player.x);
         unsigned int ty = static_cast<unsigned int>(player.y);
-        GlobalAppLog.writeLog(std::to_string(tx) + " " + std::to_string(ty), LOGMODE::INFO);
-        GlobalAppLog.writeLog("Tile is I: " + std::to_string(tilemap.getTile(tx, ty).type), LOGMODE::INFO);
         tilemap.setTile(tx, ty, { 0, 0 });
-        GlobalAppLog.writeLog("Tile is P: " + std::to_string(tilemap.getTile(tx, ty).type), LOGMODE::INFO);
     }
 }
 
@@ -206,7 +204,7 @@ void App::render()
 
     //Calculate the projection matrix
     const float zoom = camera.zoomFactor;
-    glm::mat4 projection = glm::ortho(-750.0f / zoom, 750.0f / zoom, 500.0f / zoom, -500.0f / zoom, -1.0f, 1.0f);
+    glm::mat4 projection = glm::ortho(-960.0f / zoom, 960.0f / zoom, 540.0f / zoom, -540.0f / zoom, -1.0f, 1.0f);
     
     //Calculate vertex offset due to camera position
     glm::vec2 cameraPosition = camera.getPosition();
