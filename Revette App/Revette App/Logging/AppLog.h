@@ -17,6 +17,7 @@ class AppLog
 public:
 	void loadLog(const char* logFilename);
 	void writeLog(const std::string message, const LOGMODE logType);
+	void fatalClose();
 
 private:
 	std::ofstream logFile;

@@ -15,11 +15,21 @@ unsigned int getChunkKey(unsigned int chunkX, unsigned int chunkY)
 
 
 
-TileMap::TileMap()
+// Checks if the chunk coordinates are within the bounds of the tilemap
+inline bool chunkInTileMapBounds(unsigned int chunkX, unsigned int chunkY)
 {
-	for (unsigned i = 0; i < TILEMAP_SIZE; ++i)
+	return ((chunkX < TILEMAP_SIZE_X) && (chunkY < TILEMAP_SIZE_Y));
+}
+
+
+
+
+TileMap::TileMap()
+	: terrainGenerator(std::make_shared<WorldGenerator>("./Assets/Generator.txt"))
+{
+	for (unsigned i = 0; i < TILEMAP_SIZE_X; ++i)
 	{
-		for (unsigned j = 0; j < TILEMAP_SIZE; ++j)
+		for (unsigned j = 0; j < TILEMAP_SIZE_Y; ++j)
 		{
 			unsigned int chunk_key = getChunkKey(i, j);
 			chunks.emplace( std::make_pair(chunk_key, std::make_unique<Chunk>(i, j, terrainGenerator)));
@@ -56,7 +66,7 @@ Tile TileMap::getTile(unsigned tileX, unsigned tileY)
 {
 	unsigned chunkX = tileX / CHUNK_SIZE;
 	unsigned chunkY = tileY / CHUNK_SIZE;
-	if (chunkX >= TILEMAP_SIZE || chunkY >= TILEMAP_SIZE) return { 0, 0 };
+	if (!chunkInTileMapBounds(chunkX, chunkY)) return { 0, 0 };
 	chunkReference chunk = getChunk(chunkX, chunkY);
 
 	unsigned localX = tileX - (chunkX * CHUNK_SIZE);
@@ -71,7 +81,7 @@ void TileMap::setTile(unsigned int tileX, unsigned int tileY, Tile tileType)
 {
 	unsigned int chunkX = tileX / CHUNK_SIZE;
 	unsigned int chunkY = tileY / CHUNK_SIZE;
-	if ((chunkX >= TILEMAP_SIZE) || (chunkY >= TILEMAP_SIZE))
+	if (!chunkInTileMapBounds(chunkX, chunkY))
 	{
 		GlobalAppLog.writeLog("Invalid global tile placement.", LOGMODE::INFO);
 		return;
@@ -89,9 +99,9 @@ void TileMap::setTile(unsigned int tileX, unsigned int tileY, Tile tileType)
 bool TileMap::loadChunks()
 {
 	bool success = true;
-	for (unsigned i = 0; i < TILEMAP_SIZE; ++i)
+	for (unsigned i = 0; i < TILEMAP_SIZE_X; ++i)
 	{
-		for (unsigned j = 0; j < TILEMAP_SIZE; ++j)
+		for (unsigned j = 0; j < TILEMAP_SIZE_Y; ++j)
 		{
 			std::unique_ptr<Chunk>& chunk = getChunk(i, j);
 			if (!chunk->generateChunk()) success = false;
@@ -107,7 +117,7 @@ bool TileMap::loadChunks()
 void TileMap::populateChunks()
 {
 	// Add trees
-	for (unsigned x = 0; x < (CHUNK_SIZE * TILEMAP_SIZE); ++x)
+	for (unsigned x = 0; x < MAX_BLOCK_X; ++x)
 	{
 		const float xFloat = static_cast<float>(x);
 		// Get height level
@@ -125,36 +135,11 @@ void TileMap::populateChunks()
 		const unsigned secondaryFoliageValue = static_cast<unsigned>(secondaryFoliageNoise * 100.0f);
 		if (foliageValue > 95)
 		{
-			// Get tree height
-			const unsigned treeHeight = static_cast<unsigned>(secondaryFoliageNoise * 10.0f) + 4;
-			
-			const unsigned treeBaseY = groundHeight - 1;
-			const unsigned treeTopY  = groundHeight - treeHeight;
-			
-			// Make tree trunk
-			for (unsigned y = 0; y < treeHeight; ++y)
-			{
-				setTile(x, treeBaseY - y, { 3, 0 });
-			}
-			unsigned leafGridX = x;
-			unsigned leafGridY = treeTopY;
-
-			int maxX = static_cast<int>(terrainGenerator->treeLeaves.sizeX) - terrainGenerator->treeLeaves.xOffset;
-			int maxY = static_cast<int>(terrainGenerator->treeLeaves.sizeY) - terrainGenerator->treeLeaves.yOffset;
-			for (int lX = -terrainGenerator->treeLeaves.xOffset; lX < maxX; ++lX)
-			{
-				for (int lY = -terrainGenerator->treeLeaves.yOffset; lY < maxY; ++lY)
-				{
-					Tile oldTile = getTile(leafGridX + lX, leafGridY + lY);
-					Tile newTile = terrainGenerator->treeLeaves.getTile(lX, lY, oldTile);
-					if ((newTile.type != oldTile.type) || (newTile.extraValue != oldTile.extraValue))
-					{
-						setTile(leafGridX + lX, leafGridY + lY, newTile);
-					}
-				}
-			}
+			// Place a tree
+			unsigned int treeBaseY = groundHeight - 1;
+			terrainGenerator->plants[0].placeStructure((*this), terrainGenerator, x, treeBaseY);
 		}
-		else if (secondaryFoliageValue > 95)
+		else if (foliageValue > 92)
 		{
 			setTile(x, groundHeight - 1, { 7, 0 });
 		}
@@ -170,9 +155,9 @@ bool TileMap::drawChunks(std::unique_ptr<Shader>& shader, TextureArray& tilemap,
 	shader->setInt("tileAtlas", 0);
 
 	bool success = true;
-	for (unsigned i = 0; i < TILEMAP_SIZE; ++i)
+	for (unsigned i = 0; i < TILEMAP_SIZE_X; ++i)
 	{
-		for (unsigned j = 0; j < TILEMAP_SIZE; ++j)
+		for (unsigned j = 0; j < TILEMAP_SIZE_Y; ++j)
 		{
 			std::unique_ptr<Chunk>& chunk = getChunk(i, j);
 			if (!chunk->draw(shader, projection, cameraOffset)) success = false;

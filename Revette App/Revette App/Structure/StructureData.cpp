@@ -1,190 +1,145 @@
 #include "StructureData.h"
-
 #include <fstream>
-
+#include <sstream>
+#include <stdexcept>
 #include "../Logging/GlobalAppLog.h"
+
+
+using json = nlohmann::json;
 
 
 
 // Empty initialisation
 StructureData::StructureData()
 {
-	sizeX = 0;
-	sizeY = 0;
-	xOffset = 0;
-	yOffset = 0;
-	pallateSize = 0;
-
-	hasData = false;
+	substructureCount = 0;
+	placementStepCount = 0;
 };
 
 
 
-// Loads the data for a structure from a file. Currently loads from a plaintext file which could later be optimised.
-bool StructureData::loadDataFromFile(const char* filePath)
+// Load the appropriate data to build a structure from the JSON file that the path is provided to.
+void StructureData::loadFromFile(const char* filePath)
 {
-	// Do not load any data if data already exists
-	if (hasData)
+	// Load and parse the JSON from the file
+	json structureJSON;
 	{
-		GlobalAppLog.writeLog("Overwrote existing structure from file:", LOGMODE::INFO);
-		GlobalAppLog.writeLog(filePath, LOGMODE::UNPREFIXED);
+		std::ifstream structureFile(filePath);
+		if (!structureFile) throw std::runtime_error("Error loading structure.");
+		std::stringstream structureStream;
+		structureStream << structureFile.rdbuf();
+		structureStream >> structureJSON;
+		structureFile.close();
 	}
 
-	std::ifstream dataFile(filePath);
-	
-	// Load metadata
-	unsigned x;
-	unsigned y;
-	int offsetX;
-	int offsetY;
-	unsigned sizePallate;
-	
-	// Read metadata from file
-	dataFile
-		>> x
-		>> y
-		>> offsetX
-		>> offsetY
-		>> sizePallate;
-
-	// Set metadata
-	sizeX = x;
-	sizeY = y;
-	xOffset = offsetX;
-	yOffset = offsetY;
-	pallateSize = sizePallate;
-
-	// Create underlying data containers based on the size described in the metadata
-	tilePallate = std::make_unique<TilePlacementInfo[]>(pallateSize);
-	dataArray = std::make_unique<unsigned[]>(static_cast<long long int>(x) * static_cast<long long int>(y));
-
-	// Load tile pallate
-	for (unsigned i = 0; i < pallateSize; ++i)
+	json& substructureJSON = structureJSON.at("substructures");
+	substructureCount = static_cast<unsigned int>(substructureJSON.size());
+	substructures = std::make_unique<Substructure[]>(substructureCount);
+	for (unsigned int i = 0; i < substructureCount; ++i)
 	{
-		int tileType;
-		int extraData;
-		unsigned tilePlacementMode;
-		unsigned extraTileCount;
+		substructures[i].loadSubstrucuture(substructureJSON.at(i));
+	}
 
-		// Read from file
-		dataFile
-			>> tileType
-			>> extraData
-			>> tilePlacementMode
-			>> extraTileCount;
+	json& placementJSON = structureJSON.at("placementSteps");
+	placementStepCount = static_cast<unsigned int>(placementJSON.size());
+	placementSteps = std::make_unique<StructurePlacementStep[]>(placementStepCount);
+	for (unsigned int i = 0; i < placementStepCount; ++i)
+	{
+		json& stepJSON = placementJSON.at(i);
 
-		// Read in extra informational tiles if they exist
-		Tile* extraTiles = nullptr;
-		if (extraTileCount > 0)
+		unsigned int offsetType = stepJSON.at(0);
+		unsigned int placementType = stepJSON.at(1);
+		unsigned int substructureIndex = stepJSON.at(2);
+
+		placementSteps[i].offsetType = static_cast<StructureOffsetType>(offsetType);
+		placementSteps[i].placementType = static_cast<StructurePlacementType>(placementType);
+		placementSteps[i].substructureIndex = substructureIndex;
+
+		int stepArrayIndex = 3;
+		if (offsetType > 1)
 		{
-			extraTiles = new Tile[extraTileCount];
-			for (unsigned j = 0; j < extraTileCount; ++j)
-			{
-				int eTileType;
-				int eExtraData;
+			int xOffset = stepJSON.at(stepArrayIndex++);
+			int yOffset = stepJSON.at(stepArrayIndex++);
+			placementSteps[i].xOffset = xOffset;
+			placementSteps[i].yOffset = yOffset;
+		}
+		if (placementType > 0)
+		{
+			int xLoopOffset = stepJSON.at(stepArrayIndex++);
+			int yLoopOffset = stepJSON.at(stepArrayIndex++);
+			placementSteps[i].loopXOffset = xLoopOffset;
+			placementSteps[i].loopYOffset = yLoopOffset;
+		}
+	}
+}
 
-				dataFile
-					>> eTileType
-					>> eExtraData;
 
-				extraTiles[j] = { eTileType, eExtraData };
-			}
+void StructureData::placeStructure(TileMap& tilemap, std::shared_ptr<WorldGenerator> worldGen, unsigned int x, unsigned int y)
+{
+	// Store previous substructure end point for substructures that are placed relative to a common parent
+	unsigned int lastX = x;
+	unsigned int lastY = y;
+
+	for (unsigned int i = 0; i < placementStepCount; ++i)
+	{
+		const unsigned int substructureIndex = placementSteps[i].substructureIndex;
+
+		// Determine the coordinates to place the substructure at
+		int placementX;
+		int placementY;
+		switch (placementSteps[i].offsetType)
+		{
+		case (StructureOffsetType::NO_OFFSET):
+			placementX = x;
+			placementY = y;
+			break;
+		case (StructureOffsetType::PLACE_LAST):
+			placementX = lastX;
+			placementY = lastY;
+			break;
+		case (StructureOffsetType::OFFSET):
+			placementX = x + placementSteps[i].xOffset;
+			placementY = y + placementSteps[i].yOffset;
+			break;
+		case (StructureOffsetType::LAST_OFFSET):
+			placementX = lastX + placementSteps[i].xOffset;
+			placementY = lastY + placementSteps[i].yOffset;
+			break;
+		default:
+			placementX = x;
+			placementY = y;
+			break;
 		}
 
-		tilePallate[i] = TilePlacementInfo(
-			Tile { tileType, extraData },
-			static_cast<TilePlaceMode>(tilePlacementMode),
-			extraTileCount,
-			extraTiles
-		);
-	}
 
-	// Load tile data
-	for (unsigned i = 0; i < x * y; ++i)
-	{
-		unsigned tileIndex;
-		// Read from file
-		dataFile >> tileIndex;
-		dataArray[i] = tileIndex;
-	}
-
-	hasData = true;
-
-	return true;
-};
-
-
-
-void StructureData::setData(unsigned x, unsigned y, unsigned* data, unsigned tileTypeCount, TilePlacementInfo* tiles, int offsetX, int offsetY)
-{
-	// Set pallate data, which describes the types of tiles in "dataArray"
-	tilePallate.reset(tiles);
-
-	// Set data array to hold structure data
-	dataArray.reset(data);
-
-	xOffset = offsetX;
-	yOffset = offsetY;
-	sizeX = x;
-	sizeY = y;
-
-	hasData = true;
-};
-
-
-
-Tile StructureData::getTile(const int x, const int y, const Tile currentTile)
-{
-	// Return air if no data exists
-	if (!hasData) return { 0, 0 };
-
-	// Calculate the actual position of the data taking into account the offset values
-	const unsigned locationX = x + xOffset;
-	const unsigned locationY = y + yOffset;
-
-	// Return air if the coordinates lie outside the data bounds
-	if (locationX >= sizeX || locationY >= sizeY) return { 0, 0 };
-
-	// Get the actual data location in the array
-	unsigned tileLocation = locationY * sizeY + locationX;
-
-	int tileIndex = dataArray[tileLocation];
-
-	// Do stuff based on the placement mode
-	const TilePlacementInfo& tileInfo = tilePallate[tileIndex];
-	Tile returnTile;
-	switch (tileInfo.mode)
-	{
-	case (TilePlaceMode::SET):
-	{
-		returnTile = tileInfo.tile;
-		break;
-	}
-	case (TilePlaceMode::REPLACE):
-	{
-		bool replace = false;
-		for (unsigned i = 0; i < tileInfo.extraTileCount; ++i)
+		// Place the structure based on the placement method
+		switch (placementSteps[i].placementType)
 		{
-			if (tileInfo.extraTiles[i].type == currentTile.type)
+		case (StructurePlacementType::PLACE):
+			substructures[substructureIndex].placeSubstructure(tilemap, worldGen, lastX, lastY, placementX, placementY);
+			break;
+		case (StructurePlacementType::PLACE_LOOPED_Y):
+		{
+			const float heightNoise = worldGen->getSecondaryFoliageNoise(static_cast<float>(x));
+			const int height = static_cast<int>(heightNoise * 10.0f) + 4;
+			for (int j = 0; j < height; ++j)
 			{
-				replace = true;
-				break;
+				int newXOffset = placementSteps[i].loopXOffset * j;
+				int newYOffset = placementSteps[i].loopYOffset * j;
+				substructures[substructureIndex].placeSubstructure(
+					tilemap,
+					worldGen,
+					lastX,
+					lastY,
+					placementX + newXOffset,
+					placementY + newYOffset
+				);
 			}
+			break;
 		}
-		if (replace) returnTile = tileInfo.tile;
-		else returnTile = currentTile;
-		break;
+		default:
+			break;
+		}
 	}
-	case (TilePlaceMode::SKIP):
-	{
-		returnTile = currentTile;
-		break;
-	}
-	default:
-		returnTile = {0, 0};
-		break;
-	}
-
-	return returnTile;
 }
 

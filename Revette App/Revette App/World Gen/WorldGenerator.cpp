@@ -1,25 +1,63 @@
 #include "WorldGenerator.h"
+#include <fstream>
+#include <memory>
+#include <sstream>
+#include <stdexcept>
+
+#include <json.hpp>
+
 #include "../Logging/GlobalAppLog.h"
 
 
 
-WorldGenerator::WorldGenerator()
+// Makes code shorter and more understandable
+using json = nlohmann::json;
+
+
+
+WorldGenerator::WorldGenerator(const char* generatorFile)
 {
-	// Set noise types
-	noiseCave.SetNoiseType(FastNoise::SimplexFractal);
-	noiseFoliage.SetNoiseType(FastNoise::WhiteNoise);
-	noiseSecondaryFoliage.SetNoiseType(FastNoise::WhiteNoise);
-	noiseHeight.SetNoiseType(FastNoise::SimplexFractal);
-
-	// Set seed values
-	setSeed(420);
-
-	//Set noise octaves
-	noiseCave.SetFractalOctaves(4);
-
-	if (!treeLeaves.loadDataFromFile("./Assets/Structures/leaves.txt"))
+	try
 	{
-		GlobalAppLog.writeLog("Error loading trees", LOGMODE::ERROR);
+		// Load JSON file and parse it
+		json settingsJSON;
+		{
+			std::ifstream settingsJSONFile(generatorFile);
+			if (!settingsJSONFile) throw std::runtime_error("Error reading generator settings.");
+			std::stringstream settingsJSONStream;
+			settingsJSONStream << settingsJSONFile.rdbuf();
+			settingsJSONStream >> settingsJSON;
+			settingsJSONFile.close();
+		}
+
+		// Load settings
+
+		const int seed = settingsJSON.at("seed");
+		setSeed(seed);
+
+		// Set noise types
+		noiseCave.SetNoiseType(FastNoise::SimplexFractal);
+		noiseFoliage.SetNoiseType(FastNoise::WhiteNoise);
+		noiseSecondaryFoliage.SetNoiseType(FastNoise::WhiteNoise);
+		noiseHeight.SetNoiseType(FastNoise::SimplexFractal);
+
+
+		//Set noise octaves
+		noiseCave.SetFractalOctaves(4);
+
+		// This is very temporary
+		plantCount = static_cast<unsigned int>(settingsJSON.at("plants").size());
+		plants = std::make_unique<StructureData[]>(plantCount);
+		for (unsigned int i = 0; i < plantCount; ++i)
+		{
+			std::string structureFile = settingsJSON.at("plants").at(i);
+			plants[i].loadFromFile(structureFile.c_str());
+		}
+	}
+	catch (std::exception)
+	{
+		GlobalAppLog.writeLog("Error loading and parsing generation settings JSON file", LOGMODE::ERROR);
+		throw;
 	}
 }
 

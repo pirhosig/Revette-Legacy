@@ -17,6 +17,8 @@ public:
 	bool loadModel();
 	bool loadTexture(const char* texturePath);
 
+	Tile selectedTile = { 0, 0 };
+
 private:
 	Texture playerTexture;
 	EntityMesh playerMesh;

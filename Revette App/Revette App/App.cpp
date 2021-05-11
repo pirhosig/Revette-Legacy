@@ -51,7 +51,6 @@ bool App::init()
     GlobalAppLog.writeLog("Creating window", LOGMODE::INFO);
     mainWindow = glfwCreateWindow(1920, 1080, "Revette", glfwGetPrimaryMonitor(), NULL);
     if (mainWindow == NULL) {
-
         GlobalAppLog.writeLog("Error creating window", LOGMODE::FATAL);
         glfwTerminate();
         return false;
@@ -95,7 +94,7 @@ bool App::init()
     //Load textures
     if (!loadTextures()) return false;
 
-    player.setPosition(50.0f, 100.0f);
+    player.setPosition(MAX_BLOCK_X / 2, 100.0f);
 
     // Load and generate chunks
     if (!tilemap.loadChunks()) return false;
@@ -184,11 +183,17 @@ void App::processInput(const double frameTime)
     {
         double mouseX, mouseY;
         glfwGetCursorPos(mainWindow, &mouseX, &mouseY);
-        GlobalAppLog.writeLog("Click: " + std::to_string(mouseX) + " " + std::to_string(mouseY), LOGMODE::INFO);
-
-        unsigned int tx = static_cast<unsigned int>(player.x);
-        unsigned int ty = static_cast<unsigned int>(player.y);
-        tilemap.setTile(tx, ty, { 0, 0 });
+        unsigned int tx = static_cast<unsigned int>(player.x + ((mouseX - 960.f) / camera.zoomFactor));
+        unsigned int ty = static_cast<unsigned int>(player.y + ((mouseY - 540.f) / camera.zoomFactor));
+        tilemap.setTile(tx, ty, player.selectedTile);
+    }
+    else if (glfwGetMouseButton(mainWindow, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+    {
+        double mouseX, mouseY;
+        glfwGetCursorPos(mainWindow, &mouseX, &mouseY);
+        unsigned int tx = static_cast<unsigned int>(player.x + ((mouseX - 960.f) / camera.zoomFactor));
+        unsigned int ty = static_cast<unsigned int>(player.y + ((mouseY - 540.f) / camera.zoomFactor));
+        player.selectedTile = tilemap.getTile(tx, ty);
     }
 }
 

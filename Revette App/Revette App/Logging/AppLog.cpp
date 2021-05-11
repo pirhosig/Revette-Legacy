@@ -63,3 +63,10 @@ void AppLog::writeLog(const std::string message, const LOGMODE logType)
 	}
 	}
 }
+
+
+
+void AppLog::fatalClose()
+{
+	logFile.close();
+}

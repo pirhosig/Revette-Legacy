@@ -1,18 +1,13 @@
 #pragma once
 #include <memory>
 
+#include "Constants.h"
 #include "ChunkMesh.h"
 #include "Rendering/Shader.h"
 #include "Tile.h"
+class WorldGenerator;
 #include "World Gen/WorldGenerator.h"
 
-
-
-constexpr unsigned int CHUNK_SIZE = 32U;
-constexpr unsigned int CHUNK_KEY_SHIFT = 5U;
-
-// Generation values
-constexpr unsigned int GROUND_LEVEL = 128U;
 
 
 class Chunk

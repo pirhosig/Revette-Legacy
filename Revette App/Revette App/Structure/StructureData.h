@@ -1,7 +1,10 @@
 #pragma once
 #include <memory>
 #include "../Tile.h"
-#include "../Structure/TilePlacementInfo.h"
+#include "StructurePlacementStep.h"
+class Substructure;
+#include "Substructure.h"
+#include "TilePlacementInfo.h"
 
 
 
@@ -9,20 +12,15 @@ class StructureData
 {
 public:
 	StructureData();
-	bool loadDataFromFile(const char* filePath);
-	void setData(unsigned x, unsigned y, unsigned* data, unsigned tileTypeCount, TilePlacementInfo* tiles, int offsetX, int offsetY);
-	Tile getTile(const int x, const int y, const Tile currentTile);
+	void loadFromFile(const char* filePath);
 
-	unsigned sizeX;
-	unsigned sizeY;
-	int xOffset;
-	int yOffset;
-	unsigned pallateSize;
-	
-	bool hasData;
+	void placeStructure(TileMap& tilemap, std::shared_ptr<WorldGenerator> worldGen, unsigned int x, unsigned int y);
 
 private:
-	std::unique_ptr<TilePlacementInfo[]> tilePallate;
-	std::unique_ptr<unsigned[]> dataArray;
+	unsigned int substructureCount;
+	std::unique_ptr<Substructure[]> substructures;
+
+	unsigned int placementStepCount;
+	std::unique_ptr<StructurePlacementStep[]> placementSteps;
 };
 
