@@ -15,6 +15,14 @@ using json = nlohmann::json;
 
 
 
+// Normalizes a float that has a value within the range -1.0f to 1.0f
+inline float normalize(const float x)
+{
+	return (x + 1.0f) / 2.0f;
+}
+
+
+
 WorldGenerator::WorldGenerator(const char* generatorFile)
 {
 	try
@@ -38,20 +46,32 @@ WorldGenerator::WorldGenerator(const char* generatorFile)
 		// Set noise types
 		noiseCave.SetNoiseType(FastNoise::SimplexFractal);
 		noiseFoliage.SetNoiseType(FastNoise::WhiteNoise);
-		noiseSecondaryFoliage.SetNoiseType(FastNoise::WhiteNoise);
 		noiseHeight.SetNoiseType(FastNoise::SimplexFractal);
 
 
 		//Set noise octaves
 		noiseCave.SetFractalOctaves(4);
 
-		// This is very temporary
-		plantCount = static_cast<unsigned int>(settingsJSON.at("plants").size());
+		json& plantsJSON = settingsJSON.at("plants");
+		plantCount = static_cast<unsigned int>(plantsJSON.size());
 		plants = std::make_unique<StructureData[]>(plantCount);
+
+		int currentThreshold = -1;
+
 		for (unsigned int i = 0; i < plantCount; ++i)
 		{
-			std::string structureFile = settingsJSON.at("plants").at(i).get<std::string>();
+			// Get JSON elements
+			json& plantJSON = plantsJSON.at(i);
+			std::string structureFile = plantJSON.at("file").get<std::string>();
+			float spawnChance = plantJSON.at("spawnChance").get<float>();
+
+			// Load plant from file
 			plants[i].loadFromFile(structureFile.c_str());
+
+			// Add plant with spawn rate to the plant pool
+			int spawnChanceRange = static_cast<int>(spawnChance * 10.0f);
+			currentThreshold += spawnChanceRange;
+			plantNoiseThresholds[currentThreshold] = i;
 		}
 	}
 	catch (std::exception)
@@ -67,10 +87,11 @@ WorldGenerator::WorldGenerator(const char* generatorFile)
 void WorldGenerator::setSeed(const int seedValue)
 {
 	seed = seedValue;
+	// Simplex noise functions
 	noiseCave.SetSeed(seedValue);
-	noiseFoliage.SetSeed(seedValue);
-	noiseSecondaryFoliage.SetSeed(seedValue + 0x12);
 	noiseHeight.SetSeed(seedValue + 0xAF);
+	// White noise functions
+	noiseFoliage.SetSeed(seedValue);
 }
 
 
@@ -82,26 +103,24 @@ float WorldGenerator::getCaveNoise(float xValue, float yValue)
 	float scaledXValue = xValue / caveNoiseScale;
 	float scaledYValue = yValue / caveNoiseScale;
 	float rawNoise = noiseCave.GetSimplex(scaledXValue, scaledYValue);
-	float normalisedNoise = (rawNoise + 1.0f) / 2.0f;
-	return normalisedNoise;
+	return normalize(rawNoise);
 }
 
 
 
-float WorldGenerator::getFoliageNoise(float xValue)
+int WorldGenerator::getFoliageNoise(float xValue)
 {
 	float rawNoise = noiseFoliage.GetWhiteNoise(xValue, 0.0f);
-	float normalisedNoise = (rawNoise + 1.0f) / 2.0f;
-	return normalisedNoise;
+	float scaledNoise = normalize(rawNoise) * 1000.0f;
+	return static_cast<int>(scaledNoise);
 }
 
 
 
 float WorldGenerator::getSecondaryFoliageNoise(float xValue)
 {
-	float rawNoise = noiseSecondaryFoliage.GetWhiteNoise(xValue, 0.0f);
-	float normalisedNoise = (rawNoise + 1.0f) / 2.0f;
-	return normalisedNoise;
+	float rawNoise = noiseFoliage.GetWhiteNoise(xValue, 1.0f);
+	return normalize(rawNoise);
 }
 
 

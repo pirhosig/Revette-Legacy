@@ -4,6 +4,7 @@ using json = nlohmann::json;
 
 
 
+// Constructs a zero initialised copy of the class.
 Substructure::Substructure()
 {
 	sizeX = 0;
@@ -14,7 +15,7 @@ Substructure::Substructure()
 }
 
 
-
+// Loads the information in the class required to place a substructure in the world from the JSON object that is passed.
 void Substructure::loadSubstrucuture(nlohmann::json& SubstructureJSON)
 {
 	// Load metadata
@@ -77,6 +78,7 @@ void Substructure::loadSubstrucuture(nlohmann::json& SubstructureJSON)
 
 
 
+// Places the substructure at the given coordinates (x, y) in the provided tilemap object.
 void Substructure::placeSubstructure(TileMap& tilemap, std::shared_ptr<WorldGenerator> worldGen, unsigned int& endX, unsigned int& endY, unsigned int x, unsigned int y)
 {
 	for (unsigned int i = 0; i < sizeX; ++i)
@@ -124,60 +126,3 @@ void Substructure::placeSubstructure(TileMap& tilemap, std::shared_ptr<WorldGene
 	endX = x + sizeX - 1;
 	endY = y + sizeY - 1;
 }
-
-/*
-Tile StructureData::getTile(const int x, const int y, const Tile currentTile)
-{
-	// Return air if no data exists
-	if (!hasData) return { 0, 0 };
-
-	// Calculate the actual position of the data taking into account the offset values
-	const unsigned locationX = x + xOffset;
-	const unsigned locationY = y + yOffset;
-
-	// Return air if the coordinates lie outside the data bounds
-	if (locationX >= sizeX || locationY >= sizeY) return { 0, 0 };
-
-	// Get the actual data location in the array
-	unsigned tileLocation = locationY * sizeY + locationX;
-
-	int tileIndex = dataArray[tileLocation];
-
-	// Do stuff based on the placement mode
-	const TilePlacementInfo& tileInfo = tilePallate[tileIndex];
-	Tile returnTile;
-	switch (tileInfo.mode)
-	{
-	case (TilePlaceMode::SET):
-	{
-		returnTile = tileInfo.tile;
-		break;
-	}
-	case (TilePlaceMode::REPLACE):
-	{
-		bool replace = false;
-		for (unsigned i = 0; i < tileInfo.extraTileCount; ++i)
-		{
-			if (tileInfo.extraTiles[i].type == currentTile.type)
-			{
-				replace = true;
-				break;
-			}
-		}
-		if (replace) returnTile = tileInfo.tile;
-		else returnTile = currentTile;
-		break;
-	}
-	case (TilePlaceMode::SKIP):
-	{
-		returnTile = currentTile;
-		break;
-	}
-	default:
-		returnTile = {0, 0};
-		break;
-	}
-
-	return returnTile;
-}
-*/

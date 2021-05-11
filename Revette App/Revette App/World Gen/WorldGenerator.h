@@ -1,4 +1,5 @@
 #pragma once
+#include <map>
 #include "../Other/FastNoise.h"
 class StructureData;
 #include "../Structure/StructureData.h"
@@ -11,17 +12,17 @@ public:
 	void setSeed(const int seedValue);
 
 	float getCaveNoise(float xValue, float yValue);
-	float getFoliageNoise(float xValue);
+	int getFoliageNoise(float xValue);
 	float getSecondaryFoliageNoise(float xValue);
 	float getHeightNoise(float xValue);
 
 	unsigned int plantCount;
 	std::unique_ptr<StructureData[]> plants;
+	std::map<int, unsigned int> plantNoiseThresholds;
 
 private:
 	FastNoise noiseCave;
 	FastNoise noiseFoliage;
-	FastNoise noiseSecondaryFoliage;
 	FastNoise noiseHeight;
 
 	int seed;

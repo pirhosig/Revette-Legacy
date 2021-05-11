@@ -1,4 +1,13 @@
 {
 	"seed": 420,
-	"plants": ["./Assets/Structures/tree.txt"]
+	"plants": [
+		{
+			"file": "./Assets/Structures/tree.txt",
+			"spawnChance": 5
+		},
+		{
+			"file": "./Assets/Structures/rose_bush.txt",
+			"spawnChance": 2
+		}
+	]
 }

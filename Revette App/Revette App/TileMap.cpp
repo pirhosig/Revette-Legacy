@@ -116,32 +116,28 @@ bool TileMap::loadChunks()
 
 void TileMap::populateChunks()
 {
-	// Add trees
+	// Add structures and change tiles based on surrounding tiles
 	for (unsigned x = 0; x < MAX_BLOCK_X; ++x)
 	{
 		const float xFloat = static_cast<float>(x);
+
 		// Get height level
 		const float heightOffsetNoiseValue = terrainGenerator->getHeightNoise(xFloat);
 		const int heightOffsetValue = static_cast<int>(heightOffsetNoiseValue * 10.0f);
-		const unsigned groundHeight = GROUND_LEVEL - heightOffsetValue;
+		const unsigned int groundHeight = GROUND_LEVEL - heightOffsetValue;
+		const unsigned int plantBase = groundHeight - 1;
 
 		// Make top block grass if it is a dirt block
 		if (getTile(x, groundHeight).type == 1) setTile(x, groundHeight, { 2, 0 });
 
-		// Get foliage noise
-		const float foliageNoise = terrainGenerator->getFoliageNoise(xFloat);
-		const unsigned foliageValue = static_cast<unsigned>(foliageNoise * 100.0f);
-		const float secondaryFoliageNoise = terrainGenerator->getSecondaryFoliageNoise(xFloat);
-		const unsigned secondaryFoliageValue = static_cast<unsigned>(secondaryFoliageNoise * 100.0f);
-		if (foliageValue > 95)
+		// Add plants
+		int foliageValue = terrainGenerator->getFoliageNoise(xFloat);
+		std::map<int, unsigned int>::iterator it = terrainGenerator->plantNoiseThresholds.lower_bound(foliageValue);
+		// Check if plant should be placed
+		if (it != terrainGenerator->plantNoiseThresholds.end())
 		{
-			// Place a tree
-			unsigned int treeBaseY = groundHeight - 1;
-			terrainGenerator->plants[0].placeStructure((*this), terrainGenerator, x, treeBaseY);
-		}
-		else if (foliageValue > 92)
-		{
-			setTile(x, groundHeight - 1, { 7, 0 });
+			unsigned int plantIndex = it->second;
+			terrainGenerator->plants[plantIndex].placeStructure((*this), terrainGenerator, x, plantBase);
 		}
 	}
 }

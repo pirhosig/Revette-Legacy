@@ -74,6 +74,9 @@ void StructureData::loadFromFile(const char* filePath)
 }
 
 
+
+// Constructs the structure in the provided tilemap at the coordinates (x, y) using the loaded structure construction
+// methods and the noise values provided in the worldGenerator object.
 void StructureData::placeStructure(TileMap& tilemap, std::shared_ptr<WorldGenerator> worldGen, unsigned int x, unsigned int y)
 {
 	// Store previous substructure end point for substructures that are placed relative to a common parent
@@ -116,7 +119,14 @@ void StructureData::placeStructure(TileMap& tilemap, std::shared_ptr<WorldGenera
 		switch (placementSteps[i].placementType)
 		{
 		case (StructurePlacementType::PLACE):
-			substructures[substructureIndex].placeSubstructure(tilemap, worldGen, lastX, lastY, placementX, placementY);
+			substructures[substructureIndex].placeSubstructure(
+				tilemap,
+				worldGen,
+				lastX,
+				lastY,
+				placementX,
+				placementY
+			);
 			break;
 		case (StructurePlacementType::PLACE_LOOPED_Y):
 		{
