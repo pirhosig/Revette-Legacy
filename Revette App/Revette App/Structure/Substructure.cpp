@@ -18,10 +18,10 @@ Substructure::Substructure()
 void Substructure::loadSubstrucuture(nlohmann::json& SubstructureJSON)
 {
 	// Load metadata
-	sizeX = SubstructureJSON.at("sizeX");
-	sizeY = SubstructureJSON.at("sizeY");
-	xOffset = SubstructureJSON.at("xOffset");
-	yOffset = SubstructureJSON.at("yOffset");
+	sizeX = SubstructureJSON.at("sizeX").get<unsigned int>();
+	sizeY = SubstructureJSON.at("sizeY").get<unsigned int>();
+	xOffset = SubstructureJSON.at("xOffset").get<int>();
+	yOffset = SubstructureJSON.at("yOffset").get<int>();
 
 	// Cache JSON object references to reduce lookups
 	json& pallateTileJSON = SubstructureJSON.at("tilePallate");
@@ -37,9 +37,9 @@ void Substructure::loadSubstrucuture(nlohmann::json& SubstructureJSON)
 		json& extraTilesJSON = currentTileJSON.at("extraTiles");
 
 		// Read in tile info
-		int tileType = currentTileJSON.at("type");
-		int extraData = currentTileJSON.at("extraData");
-		unsigned int tilePlacementMode = currentTileJSON.at("placementMode");
+		int tileType = currentTileJSON.at("type").get<int>();
+		int extraData = currentTileJSON.at("extraData").get<int>();
+		unsigned int tilePlacementMode = currentTileJSON.at("placementMode").get<unsigned int>();
 		unsigned int extraTileCount = static_cast<unsigned int>(extraTilesJSON.size());
 
 		// Read in extra tiles if they exist
@@ -49,8 +49,9 @@ void Substructure::loadSubstrucuture(nlohmann::json& SubstructureJSON)
 			extraTiles = new Tile[extraTileCount];
 			for (unsigned int j = 0; j < extraTileCount; ++j)
 			{
-				int extraType = extraTilesJSON.at(j).at("type");
-				int extraData = extraTilesJSON.at(j).at("extraData");
+				json& tileJSON = extraTilesJSON.at(j);
+				int extraType = tileJSON.at("type").get<int>();
+				int extraData = tileJSON.at("extraData").get<int>();
 
 				extraTiles[i] = Tile(extraType, extraData);
 			}
@@ -70,7 +71,7 @@ void Substructure::loadSubstrucuture(nlohmann::json& SubstructureJSON)
 	dataArray = std::make_unique<unsigned int[]>(dataSize);
 	for (unsigned int i = 0; i < dataSize; ++i)
 	{
-		dataArray[i] = dataJSON.at(i);
+		dataArray[i] = dataJSON.at(i).get<unsigned int>();
 	}
 }
 

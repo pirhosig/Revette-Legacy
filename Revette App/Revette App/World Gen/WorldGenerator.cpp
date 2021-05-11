@@ -32,7 +32,7 @@ WorldGenerator::WorldGenerator(const char* generatorFile)
 
 		// Load settings
 
-		const int seed = settingsJSON.at("seed");
+		const int seed = settingsJSON.at("seed").get<int>();
 		setSeed(seed);
 
 		// Set noise types
@@ -50,7 +50,7 @@ WorldGenerator::WorldGenerator(const char* generatorFile)
 		plants = std::make_unique<StructureData[]>(plantCount);
 		for (unsigned int i = 0; i < plantCount; ++i)
 		{
-			std::string structureFile = settingsJSON.at("plants").at(i);
+			std::string structureFile = settingsJSON.at("plants").at(i).get<std::string>();
 			plants[i].loadFromFile(structureFile.c_str());
 		}
 	}

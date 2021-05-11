@@ -47,9 +47,9 @@ void StructureData::loadFromFile(const char* filePath)
 	{
 		json& stepJSON = placementJSON.at(i);
 
-		unsigned int offsetType = stepJSON.at(0);
-		unsigned int placementType = stepJSON.at(1);
-		unsigned int substructureIndex = stepJSON.at(2);
+		unsigned int offsetType = stepJSON.at(0).get<unsigned int>();
+		unsigned int placementType = stepJSON.at(1).get<unsigned int>();
+		unsigned int substructureIndex = stepJSON.at(2).get<unsigned int>();
 
 		placementSteps[i].offsetType = static_cast<StructureOffsetType>(offsetType);
 		placementSteps[i].placementType = static_cast<StructurePlacementType>(placementType);
@@ -58,15 +58,15 @@ void StructureData::loadFromFile(const char* filePath)
 		int stepArrayIndex = 3;
 		if (offsetType > 1)
 		{
-			int xOffset = stepJSON.at(stepArrayIndex++);
-			int yOffset = stepJSON.at(stepArrayIndex++);
+			int xOffset = stepJSON.at(stepArrayIndex++).get<int>();
+			int yOffset = stepJSON.at(stepArrayIndex++).get<int>();
 			placementSteps[i].xOffset = xOffset;
 			placementSteps[i].yOffset = yOffset;
 		}
 		if (placementType > 0)
 		{
-			int xLoopOffset = stepJSON.at(stepArrayIndex++);
-			int yLoopOffset = stepJSON.at(stepArrayIndex++);
+			int xLoopOffset = stepJSON.at(stepArrayIndex++).get<int>();
+			int yLoopOffset = stepJSON.at(stepArrayIndex++).get<int>();
 			placementSteps[i].loopXOffset = xLoopOffset;
 			placementSteps[i].loopYOffset = yLoopOffset;
 		}
