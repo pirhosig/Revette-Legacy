@@ -1,10 +1,10 @@
 #pragma once
 #include <memory>
-#include "../Tile.h"
-#include "StructurePlacementStep.h"
+#include "StructurePlacementInfo.h"
 class Substructure;
 #include "Substructure.h"
 #include "TilePlacementInfo.h"
+#include "../World Gen/WorldInterface.h"
 
 
 
@@ -14,7 +14,7 @@ public:
 	StructureData();
 	void loadFromFile(const char* filePath);
 
-	void placeStructure(TileMap& tilemap, std::shared_ptr<WorldGenerator> worldGen, unsigned int x, unsigned int y);
+	void placeStructure(WorldInterface& world, std::shared_ptr<WorldGenerator> worldGen, unsigned int x, unsigned int y);
 
 private:
 	unsigned int substructureCount;

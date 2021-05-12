@@ -1,13 +1,11 @@
 #pragma once
 #include <memory>
 #include <unordered_map>
-
 #include <glm/glm.hpp>
-
-class Chunk;
 #include "Constants.h"
 #include "Chunk.h"
 #include "Rendering/TextureArray.h"
+#include "World Gen/WorldInterface.h"
 #include "World Gen/WorldGenerator.h"
 
 typedef std::unique_ptr<Chunk>& chunkReference;
@@ -19,15 +17,15 @@ struct coordinates {
 	unsigned y;
 };
 
-class TileMap
+class TileMap : public WorldInterface
 {
 public:
 	TileMap();
 
 	bool collisionQuery(double x, double y);
 	std::unique_ptr<Chunk>& getChunk(unsigned x, unsigned y);
-	Tile getTile(unsigned tileX, unsigned tileY);
-	void setTile(unsigned int tileX, unsigned int tileY, Tile tileType);
+	virtual Tile getTile(unsigned tileX, unsigned tileY);
+	virtual void setTile(unsigned int tileX, unsigned int tileY, Tile tileType);
 
 	bool loadChunks();
 	void populateChunks();

@@ -8,6 +8,34 @@
 using json = nlohmann::json;
 
 
+NLOHMANN_JSON_SERIALIZE_ENUM(
+	StructureOffsetType,
+	{
+		{StructureOffsetType::NO_OFFSET,  "NO_OFFSET"},
+		{StructureOffsetType::PLACE_LAST, "PLACE_LAST"},
+		{StructureOffsetType::NO_OFFSET,  "OFFSET"},
+		{StructureOffsetType::NO_OFFSET,  "LAST_OFFSET"}
+	}
+)
+inline bool StructureHasLoopedOffset(StructurePlacementType offType)
+{
+	return static_cast<unsigned int>(offType) > 0;
+}
+
+NLOHMANN_JSON_SERIALIZE_ENUM(
+	StructurePlacementType,
+	{
+		{StructurePlacementType::PLACE,          "PLACE"},
+		{StructurePlacementType::PLACE_LOOPED_Y, "PLACE_LOOPED_Y"}
+	}
+)
+inline bool StructureHasOffset(StructureOffsetType offType)
+{
+	return static_cast<unsigned int>(offType) > 1;
+}
+
+
+
 
 // Empty initialisation
 StructureData::StructureData()
@@ -47,23 +75,19 @@ void StructureData::loadFromFile(const char* filePath)
 	{
 		json& stepJSON = placementJSON.at(i);
 
-		unsigned int offsetType = stepJSON.at(0).get<unsigned int>();
-		unsigned int placementType = stepJSON.at(1).get<unsigned int>();
-		unsigned int substructureIndex = stepJSON.at(2).get<unsigned int>();
-
-		placementSteps[i].offsetType = static_cast<StructureOffsetType>(offsetType);
-		placementSteps[i].placementType = static_cast<StructurePlacementType>(placementType);
-		placementSteps[i].substructureIndex = substructureIndex;
+		placementSteps[i].offsetType = stepJSON.at(0).get<StructureOffsetType>();
+		placementSteps[i].placementType = stepJSON.at(1).get<StructurePlacementType>();
+		placementSteps[i].substructureIndex = stepJSON.at(2).get<unsigned int>();
 
 		int stepArrayIndex = 3;
-		if (offsetType > 1)
+		if (StructureHasOffset(placementSteps[i].offsetType))
 		{
 			int xOffset = stepJSON.at(stepArrayIndex++).get<int>();
 			int yOffset = stepJSON.at(stepArrayIndex++).get<int>();
 			placementSteps[i].xOffset = xOffset;
 			placementSteps[i].yOffset = yOffset;
 		}
-		if (placementType > 0)
+		if (StructureHasLoopedOffset(placementSteps[i].placementType))
 		{
 			int xLoopOffset = stepJSON.at(stepArrayIndex++).get<int>();
 			int yLoopOffset = stepJSON.at(stepArrayIndex++).get<int>();
@@ -77,7 +101,7 @@ void StructureData::loadFromFile(const char* filePath)
 
 // Constructs the structure in the provided tilemap at the coordinates (x, y) using the loaded structure construction
 // methods and the noise values provided in the worldGenerator object.
-void StructureData::placeStructure(TileMap& tilemap, std::shared_ptr<WorldGenerator> worldGen, unsigned int x, unsigned int y)
+void StructureData::placeStructure(WorldInterface& world, std::shared_ptr<WorldGenerator> worldGen, unsigned int x, unsigned int y)
 {
 	// Store previous substructure end point for substructures that are placed relative to a common parent
 	unsigned int lastX = x;
@@ -120,7 +144,7 @@ void StructureData::placeStructure(TileMap& tilemap, std::shared_ptr<WorldGenera
 		{
 		case (StructurePlacementType::PLACE):
 			substructures[substructureIndex].placeSubstructure(
-				tilemap,
+				world,
 				worldGen,
 				lastX,
 				lastY,
@@ -137,7 +161,7 @@ void StructureData::placeStructure(TileMap& tilemap, std::shared_ptr<WorldGenera
 				int newXOffset = placementSteps[i].loopXOffset * j;
 				int newYOffset = placementSteps[i].loopYOffset * j;
 				substructures[substructureIndex].placeSubstructure(
-					tilemap,
+					world,
 					worldGen,
 					lastX,
 					lastY,

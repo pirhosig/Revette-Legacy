@@ -1,6 +1,15 @@
 #include "Substructure.h"
 
 using json = nlohmann::json;
+NLOHMANN_JSON_SERIALIZE_ENUM(
+	TilePlaceMode,
+	{
+		{TilePlaceMode::SET,     "SET"},
+		{TilePlaceMode::REPLACE, "REPLACE"},
+		{TilePlaceMode::SKIP,    "SKIP"}
+	}
+)
+
 
 
 
@@ -13,6 +22,7 @@ Substructure::Substructure()
 	yOffset = 0;
 	pallateSize = 0;
 }
+
 
 
 // Loads the information in the class required to place a substructure in the world from the JSON object that is passed.
@@ -40,7 +50,7 @@ void Substructure::loadSubstrucuture(nlohmann::json& SubstructureJSON)
 		// Read in tile info
 		int tileType = currentTileJSON.at("type").get<int>();
 		int extraData = currentTileJSON.at("extraData").get<int>();
-		unsigned int tilePlacementMode = currentTileJSON.at("placementMode").get<unsigned int>();
+		TilePlaceMode tilePlacementMode = currentTileJSON.at("placementMode").get<TilePlaceMode>();
 		unsigned int extraTileCount = static_cast<unsigned int>(extraTilesJSON.size());
 
 		// Read in extra tiles if they exist
@@ -61,7 +71,7 @@ void Substructure::loadSubstrucuture(nlohmann::json& SubstructureJSON)
 		// Create a tile placement info object
 		tilePallate[i] = TilePlacementInfo(
 			Tile{ tileType, extraData },
-			static_cast<TilePlaceMode>(tilePlacementMode),
+			tilePlacementMode,
 			extraTileCount,
 			extraTiles
 		);
@@ -79,7 +89,7 @@ void Substructure::loadSubstrucuture(nlohmann::json& SubstructureJSON)
 
 
 // Places the substructure at the given coordinates (x, y) in the provided tilemap object.
-void Substructure::placeSubstructure(TileMap& tilemap, std::shared_ptr<WorldGenerator> worldGen, unsigned int& endX, unsigned int& endY, unsigned int x, unsigned int y)
+void Substructure::placeSubstructure(WorldInterface& world, std::shared_ptr<WorldGenerator> worldGen, unsigned int& endX, unsigned int& endY, unsigned int x, unsigned int y)
 {
 	for (unsigned int i = 0; i < sizeX; ++i)
 	{
@@ -97,12 +107,12 @@ void Substructure::placeSubstructure(TileMap& tilemap, std::shared_ptr<WorldGene
 			{
 				case (TilePlaceMode::SET):
 				{
-					tilemap.setTile(tileX, tileY, tileInfo.tile);
+					world.setTile(tileX, tileY, tileInfo.tile);
 					break;
 				}
 				case (TilePlaceMode::REPLACE):
 				{
-					Tile currentTile = tilemap.getTile(tileX, tileY);
+					Tile currentTile = world.getTile(tileX, tileY);
 					bool replace = false;
 					for (unsigned int ii = 0; ii < tileInfo.extraTileCount; ++ii)
 					{
@@ -112,7 +122,7 @@ void Substructure::placeSubstructure(TileMap& tilemap, std::shared_ptr<WorldGene
 							break;
 						}
 					}
-					if (replace) tilemap.setTile(tileX, tileY, tileInfo.tile);
+					if (replace) world.setTile(tileX, tileY, tileInfo.tile);
 					break;
 				}
 				case (TilePlaceMode::SKIP):

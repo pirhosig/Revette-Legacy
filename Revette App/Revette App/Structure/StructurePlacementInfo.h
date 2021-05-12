@@ -1,6 +1,9 @@
 #pragma once
+#include <json.hpp>
 
 
+
+// An enum that stores where to anchor the substructure
 enum class StructureOffsetType
 {
 	NO_OFFSET,
@@ -10,6 +13,8 @@ enum class StructureOffsetType
 };
 
 
+
+// An enum to store the way that the substructure will be placed
 enum class StructurePlacementType
 {
 	PLACE,

@@ -2,11 +2,10 @@
 #include "TilePlacementInfo.h"
 #include <memory>
 #include <json.hpp>
-
-class TileMap;
-#include "../TileMap.h"
 class WorldGenerator;
 #include "../World Gen/WorldGenerator.h"
+#include "../World Gen/WorldInterface.h"
+
 
 
 class Substructure
@@ -15,7 +14,7 @@ public:
 	Substructure();
 	void loadSubstrucuture(nlohmann::json& SubstructureJSON);
 
-	void placeSubstructure(TileMap& tilemap, std::shared_ptr<WorldGenerator> worldGen, unsigned int& endX, unsigned int& endY, unsigned int x, unsigned int y);
+	void placeSubstructure(WorldInterface& world, std::shared_ptr<WorldGenerator> worldGen, unsigned int& endX, unsigned int& endY, unsigned int x, unsigned int y);
 
 private:
 	unsigned int sizeX;

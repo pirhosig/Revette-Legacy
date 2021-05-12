@@ -77,9 +77,6 @@ bool App::init()
     unsigned int frameRate;
     settingFile >> frameRate;
     frameTime = 1000 / frameRate;
-    int worldSeed;
-    settingFile >> worldSeed;
-    tilemap.terrainGenerator->setSeed(worldSeed);
     //Close file object
     settingFile.close();
 
