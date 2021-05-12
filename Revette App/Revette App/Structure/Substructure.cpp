@@ -96,7 +96,7 @@ void Substructure::placeSubstructure(WorldInterface& world, std::shared_ptr<Worl
 		for (unsigned int j = 0; j < sizeY; ++j)
 		{
 			// Get the actual tile type at location
-			const unsigned int tileIndex = j * sizeY + i;
+			const unsigned int tileIndex = j * sizeX + i;
 			const TilePlacementInfo& tileInfo = tilePallate[dataArray[tileIndex]];
 
 			unsigned int tileX = x + i + static_cast<unsigned int>(-xOffset);
