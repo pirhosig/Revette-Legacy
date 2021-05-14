@@ -194,30 +194,12 @@ void App::processInput(const double frameTime)
 
     // Player movement
     glm::vec2 playerMovement(0.0f, 0.0f);
-    bool playerHasMoved = false;
+    if (glfwGetKey(mainWindow, GLFW_KEY_W) == GLFW_PRESS) playerMovement.y -= cameraSpeed;
+    if (glfwGetKey(mainWindow, GLFW_KEY_S) == GLFW_PRESS) playerMovement.y += cameraSpeed;
+    if (glfwGetKey(mainWindow, GLFW_KEY_A) == GLFW_PRESS) playerMovement.x -= cameraSpeed;
+    if (glfwGetKey(mainWindow, GLFW_KEY_D) == GLFW_PRESS) playerMovement.x += cameraSpeed;
 
-    if (glfwGetKey(mainWindow, GLFW_KEY_W) == GLFW_PRESS)
-    {
-        playerMovement.y += -cameraSpeed;
-        playerHasMoved = true;
-    }
-    if (glfwGetKey(mainWindow, GLFW_KEY_S) == GLFW_PRESS)
-    {
-        playerMovement.y += cameraSpeed;
-        playerHasMoved = true;
-    }
-    if (glfwGetKey(mainWindow, GLFW_KEY_A) == GLFW_PRESS)
-    {
-        playerMovement.x += -cameraSpeed;
-        playerHasMoved = true;
-    }
-    if (glfwGetKey(mainWindow, GLFW_KEY_D) == GLFW_PRESS)
-    {
-        playerMovement.x += cameraSpeed;
-        playerHasMoved = true;
-    }
-
-    if (playerHasMoved)
+    if (glm::length(playerMovement) > 0.0f)
     {
         player.move(tilemap, playerMovement.x, playerMovement.y);
     }
@@ -311,6 +293,7 @@ int App::run()
         // Render frame
         render();
 
+        // Make the game run no faster than the set frame rate
         std::this_thread::sleep_until(frameEnd);
     }
 

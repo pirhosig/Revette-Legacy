@@ -47,10 +47,6 @@ WorldGenerator::WorldGenerator(const char* generatorFile)
 		noiseFoliage.SetNoiseType(FastNoise::WhiteNoise);
 		noiseHeight.SetNoiseType(FastNoise::SimplexFractal);
 
-
-		//Set noise octaves
-		noiseCave.SetFractalOctaves(4);
-
 		json& plantsJSON = settingsJSON.at("plants");
 		plantCount = static_cast<unsigned int>(plantsJSON.size());
 		plants = std::make_unique<StructureData[]>(plantCount);
@@ -101,7 +97,7 @@ float WorldGenerator::getCaveNoise(float xValue, float yValue)
 
 	float scaledXValue = xValue / caveNoiseScale;
 	float scaledYValue = yValue / caveNoiseScale;
-	float rawNoise = noiseCave.GetSimplex(scaledXValue, scaledYValue);
+	float rawNoise = noiseCave.GetSimplexFractal(scaledXValue, scaledYValue);
 	float normalised = normalize(rawNoise);
 	return normalised;
 }
@@ -119,7 +115,7 @@ int WorldGenerator::getFoliageNoise(float xValue)
 
 float WorldGenerator::getSecondaryFoliageNoise(float xValue)
 {
-	float rawNoise = noiseFoliage.GetWhiteNoise(xValue, 1.0f);
+	float rawNoise = noiseFoliage.GetWhiteNoise(xValue, 5.0f);
 	return normalize(rawNoise);
 }
 

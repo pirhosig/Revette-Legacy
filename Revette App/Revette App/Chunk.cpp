@@ -52,12 +52,12 @@ bool Chunk::generateChunk()
 
 			if (absoluteY < groundHeight + 5)
 			{
-				if (caveNoise > 0.8f) tileData[tileArrayLocation] = { 8, 0 };
+				if (caveNoise > CAVE_ACCEPTANCE) tileData[tileArrayLocation] = { 8, 0 };
 				else tileData[tileArrayLocation] = { 1, 0 };
 			}
 			else
 			{
-				if (caveNoise > 0.8f)
+				if (caveNoise > CAVE_ACCEPTANCE)
 				{
 					tileData[tileArrayLocation] = { 6, 0 };
 				}

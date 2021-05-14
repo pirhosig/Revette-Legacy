@@ -10,3 +10,4 @@ constexpr unsigned int MAX_TILE_Y = TILEMAP_SIZE_Y * CHUNK_SIZE;
 
 
 constexpr unsigned int GROUND_LEVEL = 128U;
+constexpr float CAVE_ACCEPTANCE = 0.7f;
