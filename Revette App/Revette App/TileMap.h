@@ -24,8 +24,8 @@ public:
 
 	bool collisionQuery(double x, double y);
 	std::unique_ptr<Chunk>& getChunk(unsigned x, unsigned y);
-	virtual Tile getTile(unsigned tileX, unsigned tileY);
-	virtual void setTile(unsigned int tileX, unsigned int tileY, Tile tileType);
+	virtual Tile getTile(unsigned tileX, unsigned tileY) final;
+	virtual void setTile(unsigned int tileX, unsigned int tileY, Tile tileType) final;
 
 	bool loadChunks();
 	void populateChunks();

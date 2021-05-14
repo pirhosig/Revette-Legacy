@@ -16,17 +16,20 @@ class App
 {
 public:
 	App();
-	~App();
 	int run();
 
 	// Opengl callback functions
 	static void scrollwheelCallbackWrapper(GLFWwindow* window, double xOffset, double yOffset);
 	void scrollwheelCallback(double yOffset);
+
 private:
+	// Application loading and unloading functions
 	void cleanup();
 	bool init();
+	bool loadSettings();
 	bool loadTextures();
 
+	// Main application loop functions
 	void loop();
 	void processInput(const double frameTime);
 	void render();

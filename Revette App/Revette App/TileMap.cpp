@@ -116,28 +116,37 @@ bool TileMap::loadChunks()
 
 void TileMap::populateChunks()
 {
-	// Add structures and change tiles based on surrounding tiles
-	for (unsigned x = 0; x < MAX_BLOCK_X; ++x)
+	// First pass over the surface
+	for (unsigned int x = 0; x < MAX_TILE_X; ++x)
 	{
+		// Converted to float to make code more readable
 		const float xFloat = static_cast<float>(x);
-
 		// Get height level
 		const float heightOffsetNoiseValue = terrainGenerator->getHeightNoise(xFloat);
 		const int heightOffsetValue = static_cast<int>(heightOffsetNoiseValue * 10.0f);
 		const unsigned int groundHeight = GROUND_LEVEL - heightOffsetValue;
 		const unsigned int plantBase = groundHeight - 1;
 
-		// Make top block grass if it is a dirt block
-		if (getTile(x, groundHeight).type == 1) setTile(x, groundHeight, { 2, 0 });
 
-		// Add plants
-		int foliageValue = terrainGenerator->getFoliageNoise(xFloat);
-		std::map<int, unsigned int>::iterator it = terrainGenerator->plantNoiseThresholds.lower_bound(foliageValue);
-		// Check if plant should be placed
-		if (it != terrainGenerator->plantNoiseThresholds.end())
+		if (getTile(x, groundHeight).type == 1)
 		{
-			unsigned int plantIndex = it->second;
-			terrainGenerator->plants[plantIndex].placeStructure((*this), terrainGenerator, x, plantBase);
+			// PLANT CODE
+			// Get noise value and check what type of plant to place (possibly none)
+			int foliageValue = terrainGenerator->getFoliageNoise(xFloat);
+			std::map<int, unsigned int>::iterator it = terrainGenerator->plantNoiseThresholds.lower_bound(foliageValue);
+			// Check if plant should be placed
+			if (it != terrainGenerator->plantNoiseThresholds.end())
+			{
+				// Get plant to place
+				const unsigned int plantIndex = it->second;
+				// Place plant
+				terrainGenerator->plants[plantIndex].placeStructure((*this), terrainGenerator, x, plantBase);
+			}
+
+			// GRASS TILES CODE
+			// Check if surface level tile is dirt
+			// Set tile to grass if the tile above is not solid
+			if (!TilePhysics[getTile(x, groundHeight - 1).type].isSolid) setTile(x, groundHeight, { 2, 0 });
 		}
 	}
 }

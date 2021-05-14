@@ -1,12 +1,14 @@
+#include "App.h"
 #include <chrono>
 #include <fstream>
 #include <math.h>
+#include <sstream>
 #include <thread>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <json.hpp>
 
-#include "App.h"
 #include "Logging/GlobalAppLog.h"
 
 
@@ -18,13 +20,6 @@ App::App()
 
     // Set default fps to 60
     frameTime = 16;
-}
-
-
-
-App::~App()
-{
-
 }
 
 
@@ -47,9 +42,16 @@ bool App::init()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+    // Acquire window size
+    GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* videoMode = glfwGetVideoMode(primaryMonitor);
+    const int windowWidth = videoMode->width;
+    const int windowHeight = videoMode->height;
+
     // Create a window object and bind it as the current window
     GlobalAppLog.writeLog("Creating window", LOGMODE::INFO);
-    mainWindow = glfwCreateWindow(1920, 1080, "Revette", glfwGetPrimaryMonitor(), NULL);
+    mainWindow = glfwCreateWindow(windowWidth, windowHeight, "Revette", primaryMonitor, NULL);
+
     if (mainWindow == NULL) {
         GlobalAppLog.writeLog("Error creating window", LOGMODE::FATAL);
         glfwTerminate();
@@ -65,36 +67,81 @@ bool App::init()
         return false;
     }
 
-    // Load settings from file
-    std::ifstream settingFile;
-    settingFile.open("./Assets/Settings.txt");
-    if (!settingFile.is_open())
-    {
-        GlobalAppLog.writeLog("Failed to load settings", LOGMODE::ERROR);
-        return false;
-    }
-    // Extract settings
-    unsigned int frameRate;
-    settingFile >> frameRate;
-    frameTime = 1000 / frameRate;
-    //Close file object
-    settingFile.close();
+    // Set the viewport to properly scale rendered scene to screen size
+    glViewport(0, 0, windowWidth, windowHeight);
 
     // Set the callback functions for various input events
     glfwSetScrollCallback(mainWindow, App::scrollwheelCallbackWrapper);
-    // Set the viewport to properly scale rendered scene to screen size
-    glViewport(0, 0, 1920, 1080);
 
     // Load shader programs
     chunkShader  = std::make_unique<Shader>("./Assets/Shaders/chunk.vs",  "./Assets/Shaders/chunk.fs" );
     entityShader = std::make_unique<Shader>("./Assets/Shaders/entity.vs", "./Assets/Shaders/entity.fs");
+
     //Load textures
     if (!loadTextures()) return false;
 
-    player.setPosition(MAX_BLOCK_X / 2, 100.0f);
+    // Load settings from file
+    if (!loadSettings()) return false;
 
     // Load and generate chunks
     if (!tilemap.loadChunks()) return false;
+
+    // Place the player at the centre of the world at ground level
+    {
+        float groundLevel = 0.0f;
+        for (unsigned int i = 0; i < MAX_TILE_Y; ++i)
+        {
+            if (!(tilemap.getTile(MAX_TILE_X / 2, i) == Tile(0, 0)))
+            {
+                groundLevel = static_cast<float>(i) - 1.0f;
+                break;
+            }
+        }
+        player.setPosition(MAX_TILE_X / 2, groundLevel);
+    }
+
+    return true;
+}
+
+
+
+bool App::loadSettings()
+{
+    nlohmann::json settingJSON;
+    {
+        // Open settings file
+        std::ifstream settingFile;
+        settingFile.open("./Assets/Settings.txt");
+        if (!settingFile.is_open())
+        {
+            GlobalAppLog.writeLog("Failed to load settings.txt", LOGMODE::ERROR);
+            return false;
+        }
+        // Extract file content to string
+        std::stringstream settingStream;
+        settingStream << settingFile.rdbuf();
+        settingFile.close();
+        try
+        {
+            settingStream >> settingJSON;
+        }
+        catch (std::exception)
+        {
+            GlobalAppLog.writeLog("Failed to parse settings.txt JSON.", LOGMODE::ERROR);
+            return false;
+        }
+    }
+
+    try
+    {
+        unsigned int frameRate = settingJSON.at("fps").get<unsigned int>();
+        frameTime = 1000 / frameRate;
+    }
+    catch (std::exception)
+    {
+        GlobalAppLog.writeLog("Failed to load settings from file.", LOGMODE::ERROR);
+        return false;
+    }
 
     return true;
 }
@@ -288,7 +335,7 @@ void App::scrollwheelCallback(double yOffset)
 {
     float zoom = camera.zoomFactor;
     zoom += static_cast<float>(yOffset) / 2.0f;
-    if (zoom < 15.0f) zoom = 15.0f;
+    if (zoom < 13.0f) zoom = 13.0f;
     else if (zoom > 50.0f) zoom = 50.0f;
     camera.zoomFactor = zoom;
 }

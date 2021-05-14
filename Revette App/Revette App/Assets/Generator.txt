@@ -2,8 +2,12 @@
 	"seed": 420,
 	"plants": [
 		{
-			"file": "./Assets/Structures/tree.txt",
-			"spawnChance": 5
+			"file": "./Assets/Structures/tree_round.txt",
+			"spawnChance": 2.5
+		},
+		{
+			"file": "./Assets/Structures/tree_spiky.txt",
+			"spawnChance": 2.5
 		},
 		{
 			"file": "./Assets/Structures/rose_bush.txt",

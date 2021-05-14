@@ -1,11 +1,11 @@
 #include "WorldGenerator.h"
+#include <algorithm>
 #include <fstream>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
-
 #include <json.hpp>
-
+#include "../Constants.h"
 #include "../Logging/GlobalAppLog.h"
 
 
@@ -39,7 +39,6 @@ WorldGenerator::WorldGenerator(const char* generatorFile)
 		}
 
 		// Load settings
-
 		const int seed = settingsJSON.at("seed").get<int>();
 		setSeed(seed);
 
@@ -103,7 +102,8 @@ float WorldGenerator::getCaveNoise(float xValue, float yValue)
 	float scaledXValue = xValue / caveNoiseScale;
 	float scaledYValue = yValue / caveNoiseScale;
 	float rawNoise = noiseCave.GetSimplex(scaledXValue, scaledYValue);
-	return normalize(rawNoise);
+	float normalised = normalize(rawNoise);
+	return normalised;
 }
 
 

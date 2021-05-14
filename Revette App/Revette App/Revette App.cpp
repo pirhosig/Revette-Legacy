@@ -27,7 +27,14 @@ int main()
     {
         GlobalAppLog.writeLog(e.what(), LOGMODE::FATAL);
         GlobalAppLog.writeLog("SHIT'S FUCKED. GOODBYE.", LOGMODE::FATAL);
+        GlobalAppLog.fatalClose();
         return -1;
+    }
+    catch (...)
+    {
+        GlobalAppLog.writeLog("NO IDEA WHAT THE FUCK WENT WRONG, BUT SHIT'S DONE FOR", LOGMODE::FATAL);
+        GlobalAppLog.fatalClose();
+        return -2;
     }
     
     // Log program finish

@@ -12,6 +12,6 @@ public:
 
 	float positionX {0.0f};
 	float positionY {0.0f};
-	float zoomFactor {25.0f};
+	float zoomFactor {40.0f};
 };
 
