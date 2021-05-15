@@ -6,7 +6,7 @@
 			"xOffset": 0,
 			"yOffset": 0,
 			"tilePallate": [
-				{"type": 7, "extraData": 0, "placementMode": "SET", "extraTiles": []}
+				{"type": 7, "extraData": 0, "placementMode": "SET"}
 			],
 			"data": [
 				0

@@ -46,6 +46,7 @@ WorldGenerator::WorldGenerator(const char* generatorFile)
 		noiseCave.SetNoiseType(FastNoise::SimplexFractal);
 		noiseFoliage.SetNoiseType(FastNoise::WhiteNoise);
 		noiseHeight.SetNoiseType(FastNoise::SimplexFractal);
+		noiseTilePlacement.SetNoiseType(FastNoise::WhiteNoise);
 
 		json& plantsJSON = settingsJSON.at("plants");
 		plantCount = static_cast<unsigned int>(plantsJSON.size());
@@ -84,9 +85,10 @@ void WorldGenerator::setSeed(const int seedValue)
 	seed = seedValue;
 	// Simplex noise functions
 	noiseCave.SetSeed(seedValue);
-	noiseHeight.SetSeed(seedValue + 0xAF);
+	noiseHeight.SetSeed(seedValue + 0xAE);
 	// White noise functions
 	noiseFoliage.SetSeed(seedValue);
+	noiseTilePlacement.SetSeed(seedValue + 0xAF);
 }
 
 
@@ -100,15 +102,6 @@ float WorldGenerator::getCaveNoise(float xValue, float yValue)
 	float rawNoise = noiseCave.GetSimplexFractal(scaledXValue, scaledYValue);
 	float normalised = normalize(rawNoise);
 	return normalised;
-}
-
-
-
-int WorldGenerator::getFoliageNoise(float xValue)
-{
-	float rawNoise = noiseFoliage.GetWhiteNoise(xValue, 0.0f);
-	float scaledNoise = normalize(rawNoise) * 1000.0f;
-	return static_cast<int>(scaledNoise);
 }
 
 
@@ -130,6 +123,34 @@ float WorldGenerator::getHeightNoise(float xValue)
 	float scaledXValue = xValue / heightNoiseXScale;
 	float rawNoise = noiseHeight.GetSimplexFractal(scaledXValue, 0.0f);
 	return rawNoise;
+}
+
+
+
+StructureData* const WorldGenerator::getPlant(unsigned int xValue)
+{
+	float rawNoise = noiseFoliage.GetWhiteNoiseInt(static_cast<int>(xValue), 0);
+	int plantNoise = static_cast<int>(normalize(rawNoise) * 1000.0f);
+	std::map<int, unsigned int>::iterator it = plantNoiseThresholds.lower_bound(plantNoise);
+	// Return if no plant matches
+	if (it == plantNoiseThresholds.end()) return nullptr;
+
+	// Get index of plant
+	unsigned int plantIndex = it->second;
+	// Return a pointer to the plant structure object
+	return &(plants[plantIndex]);
+}
+
+
+
+// A noise function for determining random factors during tile placement of structures
+unsigned int WorldGenerator::getTilePlacementNoise(unsigned int xValue, unsigned int yValue)
+{
+	int xInt = static_cast<int>(xValue);
+	int yInt = static_cast<int>(yValue);
+	float rawNoise = noiseTilePlacement.GetWhiteNoiseInt(xInt, yInt);
+	unsigned int intNoise = static_cast<unsigned int>(normalize(rawNoise) * 1000.0f);
+	return intNoise;
 }
 
 

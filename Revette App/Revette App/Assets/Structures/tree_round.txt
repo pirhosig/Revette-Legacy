@@ -6,7 +6,7 @@
 			"xOffset": 0,
 			"yOffset": 0,
 			"tilePallate": [
-				{"type": 3, "extraData": 0, "placementMode": "SET", "extraTiles": []}
+				{"type": 3, "extraData": 0, "placementMode": "SET"}
 			],
 			"data": [
 				0
@@ -19,7 +19,7 @@
 			"yOffset": 2,
 			"tilePallate": [
 				{"type": 4, "extraData": 0, "placementMode": "REPLACE", "extraTiles": [{"type": 0, "extraData": 0}]},
-				{"type": 0, "extraData": 0, "placementMode": "SKIP", "extraTiles": []}
+				{"type": 0, "extraData": 0, "placementMode": "SKIP"}
 			],
 			"data": [
 				1, 0, 0, 0, 1,

@@ -7,20 +7,24 @@
 
 enum class TilePlaceMode
 {
-	SET,
+	SET = 0,
+	SKIP,
+	CHANCE,
 	REPLACE,
-	SKIP
+	CHANCE_REPLACE
 };
+
 
 
 class TilePlacementInfo
 {
 public:
 	TilePlacementInfo();
-	TilePlacementInfo(Tile tileData, TilePlaceMode tileMode, unsigned extraCount=0, Tile* extraData=nullptr);
+	TilePlacementInfo(Tile tileData, TilePlaceMode tileMode, unsigned int chance, unsigned extraCount=0, Tile* extraData=nullptr);
 
 	Tile tile;
 	TilePlaceMode mode;
-	unsigned extraTileCount;
+	unsigned int placementChance;
+	unsigned int extraTileCount;
 	std::unique_ptr<Tile[]> extraTiles;
 };

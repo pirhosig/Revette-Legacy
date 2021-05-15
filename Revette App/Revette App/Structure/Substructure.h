@@ -3,8 +3,8 @@
 #include <memory>
 #include <json.hpp>
 class WorldGenerator;
-#include "../World Gen/WorldGenerator.h"
 #include "../World Gen/WorldInterface.h"
+#include "../World Gen/WorldGenerator.h"
 
 
 
@@ -14,7 +14,14 @@ public:
 	Substructure();
 	void loadSubstrucuture(nlohmann::json& SubstructureJSON);
 
-	void placeSubstructure(WorldInterface& world, std::shared_ptr<WorldGenerator> worldGen, unsigned int& endX, unsigned int& endY, unsigned int x, unsigned int y);
+	void placeSubstructure(
+		WorldInterface& world,
+		std::shared_ptr<WorldGenerator> worldGen,
+		unsigned int& endX,
+		unsigned int& endY,
+		unsigned int x,
+		unsigned int y
+	);
 
 private:
 	unsigned int sizeX;

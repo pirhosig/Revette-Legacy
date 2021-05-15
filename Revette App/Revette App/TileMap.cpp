@@ -116,7 +116,7 @@ bool TileMap::loadChunks()
 
 void TileMap::populateChunks()
 {
-	// First pass over the surface
+	// Pass over the surface
 	for (unsigned int x = 0; x < MAX_TILE_X; ++x)
 	{
 		// Converted to float to make code more readable
@@ -131,17 +131,9 @@ void TileMap::populateChunks()
 		if (getTile(x, groundHeight).type == 1)
 		{
 			// PLANT CODE
-			// Get noise value and check what type of plant to place (possibly none)
-			int foliageValue = terrainGenerator->getFoliageNoise(xFloat);
-			std::map<int, unsigned int>::iterator it = terrainGenerator->plantNoiseThresholds.lower_bound(foliageValue);
 			// Check if plant should be placed
-			if (it != terrainGenerator->plantNoiseThresholds.end())
-			{
-				// Get plant to place
-				const unsigned int plantIndex = it->second;
-				// Place plant
-				terrainGenerator->plants[plantIndex].placeStructure((*this), terrainGenerator, x, plantBase);
-			}
+			StructureData* const plant = terrainGenerator->getPlant(x);
+			if (plant) plant->placeStructure((*this), terrainGenerator, x, plantBase);
 
 			// GRASS TILES CODE
 			// Check if surface level tile is dirt

@@ -10,6 +10,26 @@ NLOHMANN_JSON_SERIALIZE_ENUM(
 	}
 )
 
+// Used to avoid trying to read in extra data when it doesn't exist
+inline bool tilePlacementModeHasExtraData(TilePlaceMode const tileMode)
+{
+	return static_cast<unsigned int>(tileMode) > 2;
+}
+
+
+const bool tileHasPlacementChanceArray[] =
+{
+	false,
+	false,
+	true,
+	false,
+	true
+};
+
+inline bool tileHasPlacementChance(TilePlaceMode const tileMode)
+{
+	return tileHasPlacementChanceArray[static_cast<unsigned int>(tileMode)];
+}
 
 
 
@@ -43,28 +63,42 @@ void Substructure::loadSubstrucuture(nlohmann::json& SubstructureJSON)
 	tilePallate = std::make_unique<TilePlacementInfo[]>(pallateSize);
 	for (unsigned int i = 0; i < pallateSize; ++i)
 	{
-		// Keep JSON object references to avoid unecessary lookups
+		// Keep JSON object reference to avoid unecessary lookups
 		json& currentTileJSON = pallateTileJSON.at(i);
-		json& extraTilesJSON = currentTileJSON.at("extraTiles");
 
 		// Read in tile info
 		int tileType = currentTileJSON.at("type").get<int>();
 		int extraData = currentTileJSON.at("extraData").get<int>();
 		TilePlaceMode tilePlacementMode = currentTileJSON.at("placementMode").get<TilePlaceMode>();
-		unsigned int extraTileCount = static_cast<unsigned int>(extraTilesJSON.size());
+
+		unsigned int placementChance = 0;
+		unsigned int extraTileCount = 0;
+		Tile* extraTiles = nullptr;
+
+		// Read in placement chance if the current mode has a random factor
+		if (tileHasPlacementChance(tilePlacementMode))
+		{
+			placementChance = currentTileJSON.at("placementChance").get<unsigned int>();
+		}
 
 		// Read in extra tiles if they exist
-		Tile* extraTiles = nullptr;
-		if (extraTileCount > 0)
+		if (tilePlacementModeHasExtraData(tilePlacementMode))
 		{
-			extraTiles = new Tile[extraTileCount];
-			for (unsigned int j = 0; j < extraTileCount; ++j)
+			// Keep reference to JSON object
+			json& extraTilesJSON = currentTileJSON.at("extraTiles");
+			
+			extraTileCount = static_cast<unsigned int>(extraTilesJSON.size());
+			if (extraTileCount > 0)
 			{
-				json& tileJSON = extraTilesJSON.at(j);
-				int extraType = tileJSON.at("type").get<int>();
-				int extraData = tileJSON.at("extraData").get<int>();
+				extraTiles = new Tile[extraTileCount];
+				for (unsigned int j = 0; j < extraTileCount; ++j)
+				{
+					json& tileJSON = extraTilesJSON.at(j);
+					int extraType = tileJSON.at("type").get<int>();
+					int extraData = tileJSON.at("extraData").get<int>();
 
-				extraTiles[i] = Tile(extraType, extraData);
+					extraTiles[i] = Tile(extraType, extraData);
+				}
 			}
 		}
 
@@ -72,6 +106,7 @@ void Substructure::loadSubstrucuture(nlohmann::json& SubstructureJSON)
 		tilePallate[i] = TilePlacementInfo(
 			Tile{ tileType, extraData },
 			tilePlacementMode,
+			placementChance,
 			extraTileCount,
 			extraTiles
 		);
@@ -89,7 +124,14 @@ void Substructure::loadSubstrucuture(nlohmann::json& SubstructureJSON)
 
 
 // Places the substructure at the given coordinates (x, y) in the provided tilemap object.
-void Substructure::placeSubstructure(WorldInterface& world, std::shared_ptr<WorldGenerator> worldGen, unsigned int& endX, unsigned int& endY, unsigned int x, unsigned int y)
+void Substructure::placeSubstructure(
+	WorldInterface& world,
+	std::shared_ptr<WorldGenerator> worldGen,
+	unsigned int& endX,
+	unsigned int& endY,
+	unsigned int x,
+	unsigned int y
+)
 {
 	for (unsigned int i = 0; i < sizeX; ++i)
 	{
@@ -106,10 +148,16 @@ void Substructure::placeSubstructure(WorldInterface& world, std::shared_ptr<Worl
 			switch (tileInfo.mode)
 			{
 				case (TilePlaceMode::SET):
-				{
 					world.setTile(tileX, tileY, tileInfo.tile);
 					break;
-				}
+				case (TilePlaceMode::SKIP):
+					break;
+				case (TilePlaceMode::CHANCE):
+					if (worldGen->getTilePlacementNoise(tileX, tileY) > tileInfo.placementChance)
+					{
+						world.setTile(tileX, tileY, tileInfo.tile);
+					}
+					break;
 				case (TilePlaceMode::REPLACE):
 				{
 					Tile currentTile = world.getTile(tileX, tileY);
@@ -125,8 +173,24 @@ void Substructure::placeSubstructure(WorldInterface& world, std::shared_ptr<Worl
 					if (replace) world.setTile(tileX, tileY, tileInfo.tile);
 					break;
 				}
-				case (TilePlaceMode::SKIP):
+				case (TilePlaceMode::CHANCE_REPLACE):
+				{
+					if (worldGen->getTilePlacementNoise(tileX, tileY) > tileInfo.placementChance)
+					{
+						Tile currentTile = world.getTile(tileX, tileY);
+						bool replace = false;
+						for (unsigned int ii = 0; ii < tileInfo.extraTileCount; ++ii)
+						{
+							if (tileInfo.extraTiles[ii].type == currentTile.type)
+							{
+								replace = true;
+								break;
+							}
+						}
+						if (replace) world.setTile(tileX, tileY, tileInfo.tile);
+					}
 					break;
+				}
 				default:
 					break;
 			}
