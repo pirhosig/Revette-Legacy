@@ -4,8 +4,8 @@
 
 Player::Player()
 {
-	playerMesh.sizeX = 0.49f;
-	playerMesh.sizeY = 1.98f;
+	playerMesh.sizeX = 0.48f;
+	playerMesh.sizeY = 1.96f;
 
 	loadModel();
 }
@@ -50,14 +50,12 @@ bool Player::draw(std::unique_ptr<Shader>& shader, const glm::mat4& projection, 
 
 bool Player::loadModel()
 {
-	coordinate* modelVertices = new coordinate[4];
+	coordinate* modelVertices = new coordinate[2];
 
-	modelVertices[0] = { -0.49f, -1.99f };
-	modelVertices[1] = {  0.49f, -1.99f };
-	modelVertices[2] = { -0.49f,  0.01f };
-	modelVertices[3] = {  0.49f,  0.01f };
+	modelVertices[0] = { -0.48f, -1.96f };
+	modelVertices[1] = {  0.48f,  0.00f };
 
-	setCollisionModel(modelVertices, 4);
+	setCollisionModel(modelVertices, 2);
 
 	return true;
 }

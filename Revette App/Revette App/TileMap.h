@@ -12,17 +12,12 @@ typedef std::unique_ptr<Chunk>& chunkReference;
 
 
 
-struct coordinates {
-	unsigned x;
-	unsigned y;
-};
-
 class TileMap : public WorldInterface
 {
 public:
 	TileMap();
 
-	bool collisionQuery(double x, double y);
+	bool collisionQuery(double x, double y, double x2, double y2);
 	std::unique_ptr<Chunk>& getChunk(unsigned x, unsigned y);
 	virtual Tile getTile(unsigned tileX, unsigned tileY) final;
 	virtual void setTile(unsigned int tileX, unsigned int tileY, Tile tileType) final;

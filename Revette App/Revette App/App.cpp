@@ -97,7 +97,7 @@ bool App::init()
                 break;
             }
         }
-        player.setPosition(MAX_TILE_X / 2, groundLevel);
+        player.setPosition(MAX_TILE_X / 2, groundLevel - 5);
     }
 
     return true;

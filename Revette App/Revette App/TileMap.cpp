@@ -1,6 +1,7 @@
 #include "TileMap.h"
 
 #include <algorithm>
+#include <cmath>
 
 #include "Logging/GlobalAppLog.h"
 #include "Physics/Physics.h"
@@ -40,15 +41,33 @@ TileMap::TileMap()
 
 
 // Returns true if no collision would occur at the specified point, returns false if it collides
-bool TileMap::collisionQuery(double x, double y)
+bool TileMap::collisionQuery(double x, double y, double x2, double y2)
 {
-	const auto tileX = static_cast<unsigned int>(x);
-	const auto tileY = static_cast<unsigned int>(y);
-	
-	const Tile tile = getTile(tileX, tileY);
+	double minX = std::min(x, x2);
+	double maxX = std::max(x, x2);
+	double minY = std::min(y, y2);
+	double maxY = std::max(y, y2);
 
-	if (TilePhysics[tile.type].isSolid) return true;
-	else return false;
+	int lowerX = static_cast<int>(std::floor(minX));
+	int upperX = static_cast<int>(std::ceil(maxX)) - 1;
+	int lowerY = static_cast<int>(std::floor(minY));
+	int upperY = static_cast<int>(std::ceil(maxY)) - 1;
+
+	bool collided = false;
+	for (int i = lowerX; i <= upperX; ++i)
+	{
+		for (int j = lowerY; j <= upperY; ++j)
+		{
+			const Tile tile = getTile(static_cast<unsigned int>(i), static_cast<unsigned int>(j));
+			if (TilePhysics[tile.type].isSolid)
+			{
+				collided = true;
+				break;
+			}
+		}
+	}
+
+	return collided;
 }
 
 

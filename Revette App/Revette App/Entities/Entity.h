@@ -1,5 +1,7 @@
 #pragma once
+#include <memory>
 #include "../TileMap.h"
+
 
 
 struct coordinate
@@ -21,16 +23,13 @@ public:
 protected:
 
 	Entity();
-	~Entity();
 
 	void setCollisionModel(coordinate* model, unsigned int vertexCount);
 
-	coordinate* collisionModel;
+	std::unique_ptr<coordinate[]> collisionModel;
 	unsigned int collisionModelVertices;
 
 private:
-
-	static unsigned int UEID;
-	unsigned int getEUID();
+	bool tryStep(TileMap& tilemap, double newX, double newY);
 };
 
