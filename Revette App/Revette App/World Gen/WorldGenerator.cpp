@@ -43,11 +43,13 @@ WorldGenerator::WorldGenerator(const char* generatorFile)
 		setSeed(seed);
 
 		// Set noise types
+		noiseBuilding.SetNoiseType(FastNoise::WhiteNoise);
 		noiseCave.SetNoiseType(FastNoise::SimplexFractal);
 		noiseFoliage.SetNoiseType(FastNoise::WhiteNoise);
 		noiseHeight.SetNoiseType(FastNoise::SimplexFractal);
 		noiseTilePlacement.SetNoiseType(FastNoise::WhiteNoise);
 
+		// Load plants
 		json& plantsJSON = settingsJSON.at("plants");
 		plantCount = static_cast<unsigned int>(plantsJSON.size());
 		plants = std::make_unique<StructureData[]>(plantCount);
@@ -65,9 +67,30 @@ WorldGenerator::WorldGenerator(const char* generatorFile)
 			plants[i].loadFromFile(structureFile.c_str());
 
 			// Add plant with spawn rate to the plant pool
-			int spawnChanceRange = static_cast<int>(spawnChance * 10.0f);
+			int spawnChanceRange = static_cast<int>(spawnChance * 100.0f);
 			currentThreshold += spawnChanceRange;
 			plantNoiseThresholds[currentThreshold] = i;
+		}
+
+		int currentBuildingThreshold = -1;
+		// Load buildings
+		json& buildingsJSON = settingsJSON.at("buildings");
+		buildingCount = static_cast<unsigned int>(buildingsJSON.size());
+		buildings = std::make_unique<StructureData[]>(buildingCount);
+
+		for (unsigned int i = 0; i < buildingCount; ++i)
+		{
+			// Get JSON elements
+			json& buildingJSON = buildingsJSON.at(i);
+			std::string structureFile = buildingJSON.at("file").get<std::string>();
+			float spawnChance = buildingJSON.at("spawnChance").get<float>();
+
+			// Load building from file
+			buildings[i].loadFromFile(structureFile.c_str());
+			
+			int spawnChanceRange = static_cast<int>(spawnChance * 100.0f);
+			currentBuildingThreshold += spawnChanceRange;
+			buildingNoiseThresholds[currentBuildingThreshold] = i;
 		}
 	}
 	catch (std::exception)
@@ -88,6 +111,7 @@ void WorldGenerator::setSeed(const int seedValue)
 	noiseHeight.SetSeed(seedValue + 0xAE);
 	// White noise functions
 	noiseFoliage.SetSeed(seedValue);
+	noiseBuilding.SetSeed(seedValue + 0xE8);
 	noiseTilePlacement.SetSeed(seedValue + 0xAF);
 }
 
@@ -130,7 +154,7 @@ float WorldGenerator::getHeightNoise(float xValue)
 StructureData* const WorldGenerator::getPlant(unsigned int xValue)
 {
 	float rawNoise = noiseFoliage.GetWhiteNoiseInt(static_cast<int>(xValue), 0);
-	int plantNoise = static_cast<int>(normalize(rawNoise) * 1000.0f);
+	int plantNoise = static_cast<int>(normalize(rawNoise) * 10000.0f);
 	std::map<int, unsigned int>::iterator it = plantNoiseThresholds.lower_bound(plantNoise);
 	// Return if no plant matches
 	if (it == plantNoiseThresholds.end()) return nullptr;
@@ -139,6 +163,18 @@ StructureData* const WorldGenerator::getPlant(unsigned int xValue)
 	unsigned int plantIndex = it->second;
 	// Return a pointer to the plant structure object
 	return &(plants[plantIndex]);
+}
+
+
+
+StructureData* const WorldGenerator::getBuilding(unsigned int chunkX, unsigned int chunkY)
+{
+	float rawNoise = noiseBuilding.GetWhiteNoiseInt(static_cast<int>(chunkX), static_cast<int>(chunkY));
+	int buildingNoise = static_cast<int>(normalize(rawNoise) * 10000.0f);
+	std::map<int, unsigned int>::iterator it = buildingNoiseThresholds.lower_bound(buildingNoise);
+	if (it == buildingNoiseThresholds.end()) return nullptr;
+	unsigned int index = it->second;
+	return &(buildings[index]);
 }
 
 

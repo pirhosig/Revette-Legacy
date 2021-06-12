@@ -111,7 +111,7 @@ bool App::loadSettings()
     {
         // Open settings file
         std::ifstream settingFile;
-        settingFile.open("./Assets/Settings.txt");
+        settingFile.open("./Assets/Settings.json");
         if (!settingFile.is_open())
         {
             GlobalAppLog.writeLog("Failed to load settings.txt", LOGMODE::ERROR);

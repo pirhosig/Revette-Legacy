@@ -1,0 +1,25 @@
+{
+	"seed": 420,
+
+	"plants": [
+		{
+			"file": "./Assets/Structures/Plants/tree_round.json",
+			"spawnChance": 2.5
+		},
+		{
+			"file": "./Assets/Structures/Plants/tree_spiky.json",
+			"spawnChance": 2.5
+		},
+		{
+			"file": "./Assets/Structures/Plants/rose_bush.json",
+			"spawnChance": 2
+		}
+	],
+
+	"buildings": [
+		{
+			"file": "./Assets/Structures/Buildings/cabin.json",
+			"spawnChance": 1
+		}
+	]
+}

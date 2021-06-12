@@ -42,7 +42,7 @@ void Entity::move(TileMap& tileMap, double dX, double dY)
 	bool collidedX = false;
 	bool collidedY = false;
 	// Loop through collision moving by "loopVector" each time in x and y axis
-	while (((dX * dX) + (dY * dY)) >= squaredLoopLength)
+	while ((!collidedX && (std::abs(dX) > std::abs(loopX))) || (!collidedY && (std::abs(dY) > std::abs(loopY))))
 	{
 		if (!collidedX && !collidedY)
 		{
@@ -63,7 +63,6 @@ void Entity::move(TileMap& tileMap, double dX, double dY)
 		}
 		else
 		{
-			if (collidedX && collidedY) break;
 			if (!collidedX)
 			{
 				double newX = currentX + loopX;
@@ -88,7 +87,6 @@ void Entity::move(TileMap& tileMap, double dX, double dY)
 	}
 
 	// Try to move to final coordinates
-	if (!collidedX && !collidedY)
 	{
 		double newX = currentX + dX;
 		double newY = currentY + dY;
@@ -108,27 +106,6 @@ void Entity::move(TileMap& tileMap, double dX, double dY)
 				dX = 0;
 			}
 			else if (!tryStep(tileMap, currentX, newY))
-			{
-				currentY = newY;
-				dY = 0;
-			}
-		}
-	}
-	else
-	{
-		if (!collidedX)
-		{
-			double newX = currentX + dX;
-			if (!tryStep(tileMap, newX, currentY))
-			{
-				currentX = newX;
-				dX = 0;
-			}
-		}
-		if (!collidedY)
-		{
-			double newY = currentY + dY;
-			if (!tryStep(tileMap, currentX, newY))
 			{
 				currentY = newY;
 				dY = 0;

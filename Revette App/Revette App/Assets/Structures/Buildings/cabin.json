@@ -1,0 +1,33 @@
+{
+  "substructures": [
+    {
+      "sizeX": 7,
+      "sizeY": 5,
+      "xOffset": 4,
+      "yOffset": 0,
+      "tilePallate": [
+        {
+          "type": 10,
+          "extraData": 0,
+          "placementMode": "SET"
+        },
+        {
+          "type": 11,
+          "extraData": 0,
+          "placementMode": "SET"
+        }
+      ],
+      "data": [
+        0, 0, 0, 0, 0, 0, 0,
+        0, 1, 1, 1, 1, 1, 0,
+        1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1,
+        0, 0, 0, 0, 0, 0, 0
+      ]
+    }
+  ],
+
+  "placementSteps": [
+    ["NO_OFFSET", "PLACE", 0]
+  ]
+}

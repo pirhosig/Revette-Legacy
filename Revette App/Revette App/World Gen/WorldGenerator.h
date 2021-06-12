@@ -14,7 +14,10 @@ public:
 	float getCaveNoise(float xValue, float yValue);
 	float getSecondaryFoliageNoise(float xValue);
 	float getHeightNoise(float xValue);
+
 	StructureData* const getPlant(unsigned int xValue);
+	StructureData* const getBuilding(unsigned int chunkX, unsigned int chunkY);
+
 	unsigned int getTilePlacementNoise(unsigned int xValue, unsigned int yValue);
 
 private:
@@ -22,6 +25,11 @@ private:
 	std::unique_ptr<StructureData[]> plants;
 	std::map<int, unsigned int> plantNoiseThresholds;
 
+	unsigned int buildingCount;
+	std::unique_ptr<StructureData[]> buildings;
+	std::map<int, unsigned int> buildingNoiseThresholds;
+
+	FastNoise noiseBuilding;
 	FastNoise noiseCave;
 	FastNoise noiseFoliage;
 	FastNoise noiseHeight;

@@ -26,7 +26,7 @@ inline bool chunkInTileMapBounds(unsigned int chunkX, unsigned int chunkY)
 
 
 TileMap::TileMap()
-	: terrainGenerator(std::make_shared<WorldGenerator>("./Assets/Generator.txt"))
+	: terrainGenerator(std::make_shared<WorldGenerator>("./Assets/Generator.json"))
 {
 	for (unsigned i = 0; i < TILEMAP_SIZE_X; ++i)
 	{
@@ -140,6 +140,7 @@ void TileMap::populateChunks()
 	{
 		// Converted to float to make code more readable
 		const float xFloat = static_cast<float>(x);
+
 		// Get height level
 		const float heightOffsetNoiseValue = terrainGenerator->getHeightNoise(xFloat);
 		const int heightOffsetValue = static_cast<int>(heightOffsetNoiseValue * 10.0f);
@@ -158,6 +159,23 @@ void TileMap::populateChunks()
 			// Check if surface level tile is dirt
 			// Set tile to grass if the tile above is not solid
 			if (!TilePhysics[getTile(x, groundHeight - 1).type].isSolid) setTile(x, groundHeight, { 2, 0 });
+		}
+	}
+
+	// Pass over each chunk
+	for (unsigned int chunkX = 0; chunkX < TILEMAP_SIZE_X; ++chunkX)
+	{
+		for (unsigned int chunkY = 0; chunkY < TILEMAP_SIZE_Y; ++chunkY)
+		{
+			StructureData* const building = terrainGenerator->getBuilding(chunkX, chunkY);
+			if (building)
+			{
+				unsigned int offsetX = 0;
+				unsigned int offsetY = 0;
+				unsigned int placeX = chunkX * CHUNK_SIZE;
+				unsigned int placeY = chunkY * CHUNK_SIZE;
+				building->placeStructure(*this, terrainGenerator, placeX, placeY);
+			}
 		}
 	}
 }
