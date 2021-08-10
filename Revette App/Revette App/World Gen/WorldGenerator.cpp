@@ -44,6 +44,7 @@ WorldGenerator::WorldGenerator(const char* generatorFile)
 
 		// Set noise types
 		noiseBuilding.SetNoiseType(FastNoise::WhiteNoise);
+		noiseBuildingOffset.SetNoiseType(FastNoise::WhiteNoise);
 		noiseCave.SetNoiseType(FastNoise::SimplexFractal);
 		noiseFoliage.SetNoiseType(FastNoise::WhiteNoise);
 		noiseHeight.SetNoiseType(FastNoise::SimplexFractal);
@@ -167,7 +168,7 @@ StructureData* const WorldGenerator::getPlant(unsigned int xValue)
 
 
 
-StructureData* const WorldGenerator::getBuilding(unsigned int chunkX, unsigned int chunkY)
+StructureData* const WorldGenerator::getBuildingType(unsigned int chunkX, unsigned int chunkY)
 {
 	float rawNoise = noiseBuilding.GetWhiteNoiseInt(static_cast<int>(chunkX), static_cast<int>(chunkY));
 	int buildingNoise = static_cast<int>(normalize(rawNoise) * 10000.0f);
@@ -175,6 +176,16 @@ StructureData* const WorldGenerator::getBuilding(unsigned int chunkX, unsigned i
 	if (it == buildingNoiseThresholds.end()) return nullptr;
 	unsigned int index = it->second;
 	return &(buildings[index]);
+}
+
+
+
+void WorldGenerator::getBuildingOffset(unsigned int& xOffset, unsigned int& yOffset, unsigned int chunkX, unsigned int chunkY)
+{
+	float rawNoise = noiseBuildingOffset.GetWhiteNoiseInt(static_cast<int>(chunkX), static_cast<int>(chunkY));
+	unsigned int offsetNoise = static_cast<unsigned int>(normalize(rawNoise) * 1024.0f);
+	xOffset = offsetNoise & 63;
+	yOffset = offsetNoise >> 5;
 }
 
 

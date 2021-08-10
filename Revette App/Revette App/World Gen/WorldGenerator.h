@@ -16,7 +16,9 @@ public:
 	float getHeightNoise(float xValue);
 
 	StructureData* const getPlant(unsigned int xValue);
-	StructureData* const getBuilding(unsigned int chunkX, unsigned int chunkY);
+	StructureData* const getBuildingType(unsigned int chunkX, unsigned int chunkY);
+
+	void getBuildingOffset(unsigned int& xOffset, unsigned int& yOffset, unsigned int chunkX, unsigned int chunkY);
 
 	unsigned int getTilePlacementNoise(unsigned int xValue, unsigned int yValue);
 
@@ -30,6 +32,7 @@ private:
 	std::map<int, unsigned int> buildingNoiseThresholds;
 
 	FastNoise noiseBuilding;
+	FastNoise noiseBuildingOffset;
 	FastNoise noiseCave;
 	FastNoise noiseFoliage;
 	FastNoise noiseHeight;

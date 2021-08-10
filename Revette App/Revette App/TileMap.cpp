@@ -167,13 +167,13 @@ void TileMap::populateChunks()
 	{
 		for (unsigned int chunkY = 0; chunkY < TILEMAP_SIZE_Y; ++chunkY)
 		{
-			StructureData* const building = terrainGenerator->getBuilding(chunkX, chunkY);
+			StructureData* const building = terrainGenerator->getBuildingType(chunkX, chunkY);
 			if (building)
 			{
-				unsigned int offsetX = 0;
-				unsigned int offsetY = 0;
-				unsigned int placeX = chunkX * CHUNK_SIZE;
-				unsigned int placeY = chunkY * CHUNK_SIZE;
+				unsigned int offsetX, offsetY;
+				terrainGenerator->getBuildingOffset(offsetX, offsetY, chunkX, chunkY);
+				unsigned int placeX = chunkX * CHUNK_SIZE + offsetX;
+				unsigned int placeY = chunkY * CHUNK_SIZE + offsetY;
 				building->placeStructure(*this, terrainGenerator, placeX, placeY);
 			}
 		}
