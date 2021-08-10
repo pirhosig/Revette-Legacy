@@ -73,15 +73,18 @@ void Entity::move(TileMap& tileMap, double dX, double dY)
 				}
 				else collidedX = true;
 			}
-			if (!collidedY)
+			else
 			{
-				double newY = currentY + loopY;
-				if (!tryStep(tileMap, currentX, newY))
+				if (!collidedY)
 				{
-					currentY = newY;
-					dY -= loopY;
+					double newY = currentY + loopY;
+					if (!tryStep(tileMap, currentX, newY))
+					{
+						currentY = newY;
+						dY -= loopY;
+					}
+					else collidedY = true;
 				}
-				else collidedY = true;
 			}
 		}
 	}

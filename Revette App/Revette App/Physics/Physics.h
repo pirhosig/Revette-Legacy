@@ -15,6 +15,9 @@ const TilePhysicsProperties TilePhysics[] = {
 	true,
 	false,
 	false,
+	false,
+	true,
+	true,
 	false
 };
 
